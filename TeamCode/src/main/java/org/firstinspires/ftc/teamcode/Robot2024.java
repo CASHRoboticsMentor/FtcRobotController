@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
 import org.firstinspires.ftc.teamcode.utilities.ElevatorControl;
 import org.firstinspires.ftc.teamcode.utilities.IMUUtility;
 import org.firstinspires.ftc.teamcode.utilities.IMUUtility2;
+import org.firstinspires.ftc.teamcode.utilities.ServoControl_Claw;
+import org.firstinspires.ftc.teamcode.utilities.ServoControl_ClawRotate;
 import org.firstinspires.ftc.teamcode.utilities.SweeperControl;
 import org.firstinspires.ftc.teamcode.utilities.WinchControl;
 import org.firstinspires.ftc.teamcode.utilities.pid_controller;
@@ -34,9 +36,22 @@ public class Robot2024<_opMode> {
     //Creates a new object for the Drive Library
     public CASH_Drive_Library CASHDriveLibrary = new CASH_Drive_Library();
 
+    private ServoControl_Claw ClawControl;
+    {
+        ClawControl = new ServoControl_Claw();
+    }
+
+    private ServoControl_ClawRotate RotateControl;
+    {
+        RotateControl = new ServoControl_ClawRotate();
+    }
+
+
+
     //Creates a new object of type Elevator Control
     //All Elevator Controls will be writen in Elevator Control
-    private ElevatorControl elevatorCode;
+
+     private ElevatorControl elevatorCode;
     {
         elevatorCode = new ElevatorControl();
     }
@@ -118,11 +133,34 @@ public class Robot2024<_opMode> {
     // initializeImplements:  For All autonomous programse
     //ONLY USE THIS FOR AUTO PROGRAMS
     public void initializeImplements() {
-        elevatorCode.init(_opMode, "elevator_motor");
-        SweeperCode.init(_opMode, "sweeper_motor");
-        winchCode.init(_opMode,"winch_motor");
+//        elevatorCode.init(_opMode, "elevator_motor");
+//        SweeperCode.init(_opMode, "sweeper_motor");
+//        winchCode.init(_opMode,"winch_motor");
+        ClawControl.init(_opMode, "claw_servo");
+        RotateControl.init(_opMode, "claw_rotate_servo");
+    }
+
+    public void DownPosition(double command){
+        RotateControl.DownPosition(command);
+
 
     }
+
+    public void UpPosition(double command){
+        RotateControl.UpPosition(command);
+
+
+    }
+
+    public void openClaw(double command){
+        ClawControl.OpenClaw(command);
+
+
+    }
+    public void closeClaw(double command) {
+        ClawControl.CloseClaw(command);
+    }
+
     //ONLY USE THIS FOR TELIPOP
     //elevatorCode.intit2:  This initializes the implements but doesn't reset the encoders.
     public void initializeImplements2() {
