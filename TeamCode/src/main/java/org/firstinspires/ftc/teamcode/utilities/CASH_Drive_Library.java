@@ -35,10 +35,10 @@ public class CASH_Drive_Library {
     public DistanceSensor rightFreightDetector;
     public DistanceSensor leftFreightDetector;
 
-    public double FORWARD = -90;
-    public double REVERSE = 90;
-    public double RIGHT = 180;
-    public double LEFT = 0;
+    public double FORWARD = 90;
+    public double REVERSE = -90;
+    public double RIGHT = 0;
+    public double LEFT = 180;
 
     public double TURN_RIGHT = 1;
     public double TURN_LEFT = -1;
@@ -65,9 +65,10 @@ public class CASH_Drive_Library {
     //TELIOP AUTO COTNORLS
     private double desiredOrentation = 0;
     private double desiredDistanceFromWall = 15;
+    private double desiredDistanceToTravel;
 
-    private pid_controller rotation_pid = new pid_controller();
-    private pid_controller distToWall_pid = new pid_controller();
+    private final pid_controller rotation_pid = new pid_controller();
+    private final pid_controller distToWall_pid = new pid_controller();
 
     private double WALL_SENSE_SPEED = 0.2;
 
@@ -106,10 +107,10 @@ public class CASH_Drive_Library {
     //Used to show how far we went Left to Right. Usually used in autonomous mode
     public double GetLeftRightMovementFromTicks()
     {
-        return INCH_PER_TICK * rightFrontMotor.getCurrentPosition();
+        return INCH_PER_TICK * getDrivingEncoderCurrentPosition();
     }
     public int getRightRearEncoderTick() {
-        return rightRearMotor.getCurrentPosition();
+        return getDrivingEncoderCurrentPosition();
     };
     public int GetTicksCountForMovement(double distance)
     {
@@ -240,10 +241,10 @@ public class CASH_Drive_Library {
         rightFrontMotor.setPower(RFMP);
         rightRearMotor.setPower(RRMP);
 
-       // RobotLog.d(String.format("CASH: LF: %.03f, RR: %.03f,RF: %.03f,LR: %.03f",LFMP,RRMP,RFMP,LRMP));
-        RobotLog.d(String.format("FWD: %.03f, Strafe: %.03f, LF: %.03f, RR: %.03f,RF: %.03f,LR: %.03f",
-                directionStick_y,directionStick_x,turnStick_x,
-                leftFrontMotor.getPower(),rightRearMotor.getPower(),rightFrontMotor.getPower(),leftRearMotor.getPower()));
+        RobotLog.d(String.format("encoderPosition: %.03f",(double)leftRearMotor.getCurrentPosition()));
+//        RobotLog.d(String.format("FWD: %.03f, Strafe: %.03f, LF: %.03f, RR: %.03f,RF: %.03f,LR: %.03f",
+//                directionStick_y,directionStick_x,turnStick_x,
+//                leftFrontMotor.getPower(),rightRearMotor.getPower(),rightFrontMotor.getPower(),leftRearMotor.getPower()));
     }
 
     //This moves the robot in autonomous mode with 3 inputs:
@@ -297,22 +298,22 @@ public class CASH_Drive_Library {
                 if (useForeAftEncoder){
                     currentPosition=foreAftEncoder.getCurrentPosition();
                 }else{
-                    currentPosition=rightRearMotor.getCurrentPosition();
+                    currentPosition=getDrivingEncoderCurrentPosition();
                 }
 
             }else if (direction_deg == REVERSE){
                 if (useForeAftEncoder){
                     currentPosition=foreAftEncoder.getCurrentPosition();
                 }else{
-                    currentPosition=rightRearMotor.getCurrentPosition();
+                    currentPosition=getDrivingEncoderCurrentPosition();
                 }
             }else if (direction_deg == RIGHT){
-                currentPosition=rightRearMotor.getCurrentPosition();
+                currentPosition=getDrivingEncoderCurrentPosition();
             }else{
-                currentPosition=rightRearMotor.getCurrentPosition();
+                currentPosition=getDrivingEncoderCurrentPosition();
             }
 
-//            RobotLog.i(String.format("Direction: %s TicksNeeded: %03d  CurrentTicks: %03d",direction_deg, desiredTicks,currentPosition));
+            RobotLog.i(String.format("Direction: %s TicksNeeded: %03d  CurrentTicks: %03d",direction_deg, desiredTicks,currentPosition));
             if(abs(currentPosition) >= abs(desiredTicks)){achievedDistance = true;}
 
 
@@ -342,8 +343,9 @@ public class CASH_Drive_Library {
             if (((LinearOpMode)opmode).opModeIsActive())
             {
                 correction = imu.checkDirection();
+
+                RobotLog.i(String.format("CORRECTION IS: %f",correction));
 //                correction = 0;
-//                RobotLog.i(String.format("CORRECTION IS: %f",correction));
             }    else
             {
                 this.Stop();
@@ -461,19 +463,19 @@ public class CASH_Drive_Library {
                 if (useForeAftEncoder){
                     currentPosition=foreAftEncoder.getCurrentPosition();
                 }else{
-                    currentPosition=rightRearMotor.getCurrentPosition();
+                    currentPosition=getDrivingEncoderCurrentPosition();
                 }
 
             }else if (direction_deg == REVERSE){
                 if (useForeAftEncoder){
                     currentPosition=foreAftEncoder.getCurrentPosition();
                 }else{
-                    currentPosition=rightRearMotor.getCurrentPosition();
+                    currentPosition=getDrivingEncoderCurrentPosition();
                 }
             }else if (direction_deg == RIGHT){
-                currentPosition=rightRearMotor.getCurrentPosition();
+                currentPosition=getDrivingEncoderCurrentPosition();
             }else{
-                currentPosition=rightRearMotor.getCurrentPosition();
+                currentPosition=getDrivingEncoderCurrentPosition();
             }
 
 //            RobotLog.i(String.format("Direction: %s TicksNeeded: %03d  CurrentTicks: %03d",direction_deg, desiredTicks,currentPosition));
@@ -792,6 +794,19 @@ public class CASH_Drive_Library {
     public void setTeliopDesiredDistanceFromWall(double desiredDistanceFromTheWall){
         desiredDistanceFromWall = desiredDistanceFromTheWall;
     }
+
+    public void setDesiredTravelDisance(double distanceToTravel){
+        desiredDistanceToTravel = distanceToTravel;
+    }
+    public void updateDriveController(double dt){
+
+        double desiredSpd = distToWall_pid.update(
+                desiredDistanceToTravel,
+                this.getDrivingEncoderCurrentPosition(),
+                -1,
+                1.0,
+                dt);
+    }
     public void updateTeliopDesDistFromWall(double dt, double dist1, double dist2){
         double currentDistance = dist1;
         double desSpeedFwd = distToWall_pid.update(
@@ -811,6 +826,23 @@ public class CASH_Drive_Library {
 
         this.MoveRobotTeliOp(-desSpeedFwd,0,0,false,false);
 
+    }
+
+    public int getDrivingEncoderCurrentPosition(){
+        return leftFrontMotor.getCurrentPosition();
+    }
+
+    public int getRREncoder(){
+        return rightRearMotor.getCurrentPosition();
+    }
+    public int getLREncoder(){
+        return leftRearMotor.getCurrentPosition();
+    }
+    public int getLFEncoder(){
+        return leftFrontMotor.getCurrentPosition();
+    }
+    public int getRFEncoder(){
+        return rightFrontMotor.getCurrentPosition();
     }
 
 

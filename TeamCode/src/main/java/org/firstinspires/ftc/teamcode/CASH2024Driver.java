@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -42,7 +43,7 @@ import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
  */
 
 @TeleOp(name="CASH 2023-2024 TeleOp", group="Iterative Opmode")
-//@Disabled
+@Disabled
 public class CASH2024Driver extends OpMode
 {
     /*
@@ -77,9 +78,9 @@ public class CASH2024Driver extends OpMode
 
     public void init() {
         robot=new Robot2024(this);
-      robot.initializeRobot();
-       robot.initializeImplements2();
-       CASHDriveLibrary=robot.CASHDriveLibrary;
+        robot.initializeRobot();
+//        robot.initializeImplements();
+        CASHDriveLibrary=robot.CASHDriveLibrary;
 
         //Set the robot up to use encoders on all 4 wheels.  This is then velocity controlled which
         //can be a bit better than just open loop.
@@ -159,21 +160,11 @@ public class CASH2024Driver extends OpMode
             } else {
                 sweeperCmd = 0;
             }
-            robot.sweeperCommand(sweeperCmd);
+//            robot.sweeperCommand(sweeperCmd);
 
-            //drone control
-            if (arm && fire) {
-                robot.launch_drone();
-            } else if (fire) {
-                robot.reset_launch();
-            }
 
-            if (reset_bucket) {
-                robot.reset_pixle_bucket();
-            }
-            if (dump_pixle) {
-                robot.dump_pixle();
-            }
+
+
 
         /*if ( low_elevator == true && AutoRaiseActiveLow == false ) {
             auto_elevator_pos = 500;
@@ -239,11 +230,11 @@ public class CASH2024Driver extends OpMode
 //                RobotLog.i(String.format("In Lower."));
 //            AutoElevatorActive = true;
             } else if (mid_elevator == true) {
-                robot.setDesElevatorPosition_Teliop(robot.ELEVATOR_MID_POSITION);
+                robot.setDesElevatorPosition_Teliop(robot.LOWER_RUNG_POSITION);
 //                RobotLog.i(String.format("In Middle"));
 //            AutoElevatorActive = true;
             } else if (high_elevator == true) {
-                robot.setDesElevatorPosition_Teliop(robot.ELEVATOR_HIGH_POSITION);
+                robot.setDesElevatorPosition_Teliop(robot.LOWER_RUNG_POSITION);
 //                RobotLog.i(String.format("In High"));
 //            AutoElevatorActive = true;
             }

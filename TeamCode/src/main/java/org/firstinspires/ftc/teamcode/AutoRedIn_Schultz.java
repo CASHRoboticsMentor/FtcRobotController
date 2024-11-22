@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -53,7 +54,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  */
 
 @Autonomous(name="AutoRedIn_Schultz", group="Autonomous LinearOpMode")
-//@Disabled
+@Disabled
 public class AutoRedIn_Schultz extends LinearOpMode {
     Robot2024 robot;
     //This sensor is used to detect the team prop.  There are two of them, one on left and one on
@@ -83,7 +84,7 @@ public class AutoRedIn_Schultz extends LinearOpMode {
         robot.initializeRobot();
         robot.resetIMU();
         if ( initimpliments == true ) {
-            robot.initializeImplements();  //NOTE:  We reset everything because this is beginning of match
+//            robot.initializeImplements();  //NOTE:  We reset everything because this is beginning of match
         }
         telemetry.addData("Status", "Initialized");
 
@@ -95,7 +96,7 @@ public class AutoRedIn_Schultz extends LinearOpMode {
         runtime.reset();
         while (opModeIsActive()) {
             //First step is to reset the bucket so that it is held into position.
-            robot.reset_pixle_bucket();
+//            robot.reset_pixle_bucket();
 
             //Step 1:  Setup robot to scan the first position for the team prop
             robot.moveRobotAuto(robot.LEFT, 0.5, 4);
@@ -116,20 +117,20 @@ public class AutoRedIn_Schultz extends LinearOpMode {
                 robot.moveRobotAuto(robot.LEFT, 0.5, 2);
                 robot.moveRobotAuto(robot.REVERSE, 0.5, 5);
                 if ( initimpliments == true ) {
-                    robot.raiseElevatorToPosition_Autonomous(.5,robot.DELIVER_PIXLE_POSITION);
-                    robot.sweeperCommand(1.0);
+//                    robot.raiseElevatorToPosition_Autonomous(.5,robot.DELIVER_PIXLE_POSITION);
+//                    robot.sweeperCommand(1.0);
                     sleep(1000);
-                    robot.sweeperCommand(0.0);
+//                    robot.sweeperCommand(0.0);
                 }
                 robot.moveRobotAuto(robot.FORWARD, 0.5, 3);
                 robot.moveRobotAuto(robot.LEFT, 0.5, 18);
                 robot.moveRobotAuto(robot.REVERSE, 0.5, 11);
                 robot.rotateRobotAuto2(robot.TURN_RIGHT, 90, 0.5);
                 if ( initimpliments == true ) {
-                    robot.raiseElevatorToPosition_Autonomous(1, robot.ELEVATOR_MID_POSITION);
-                    robot.dump_pixle();
+                    robot.raiseElevatorToPosition_Autonomous(1, robot.LOWER_RUNG_POSITION);
+//                    robot.dump_pixle();
                     sleep(1000);
-                    robot.reset_pixle_bucket();
+//                    robot.reset_pixle_bucket();
                     sleep(2000);
                     robot.raiseElevatorToPosition_Autonomous(-.5, 0);
                 }
@@ -151,10 +152,10 @@ public class AutoRedIn_Schultz extends LinearOpMode {
                 telemetry.update();
                 robot.moveRobotAuto(robot.REVERSE, 0.3, 19);
                 if ( initimpliments == true ) {
-                    robot.raiseElevatorToPosition_Autonomous(.5,robot.DELIVER_PIXLE_POSITION);
-                    robot.sweeperCommand(1.0);
+//                    robot.raiseElevatorToPosition_Autonomous(.5,robot.DELIVER_PIXLE_POSITION);
+//                    robot.sweeperCommand(1.0);
                     sleep(1000);
-                    robot.sweeperCommand(0.0);
+//                    robot.sweeperCommand(0.0);
                     sleep(2000);
                 }
 
@@ -162,10 +163,10 @@ public class AutoRedIn_Schultz extends LinearOpMode {
                 robot.rotateRobotAuto2(robot.TURN_RIGHT, 90, 0.5);
                 robot.moveRobotAuto(robot.REVERSE, 0.3, 28);
                 if ( initimpliments == true ) {
-                    robot.raiseElevatorToPosition_Autonomous(1, robot.ELEVATOR_MID_POSITION);
-                    robot.dump_pixle();
+                    robot.raiseElevatorToPosition_Autonomous(1, robot.LOWER_RUNG_POSITION);
+//                    robot.dump_pixle();
                     sleep(1000);
-                    robot.reset_pixle_bucket();
+//                    robot.reset_pixle_bucket();
                     sleep(2000);
                     robot.raiseElevatorToPosition_Autonomous(-.5, 0);
                 }
@@ -181,20 +182,20 @@ public class AutoRedIn_Schultz extends LinearOpMode {
             robot.moveRobotAuto(robot.REVERSE, 0.3, 19);
             robot.rotateRobotAuto2(robot.TURN_LEFT, 90, 0.5);
             if ( initimpliments == true ) {
-                robot.raiseElevatorToPosition_Autonomous(.5,robot.DELIVER_PIXLE_POSITION);
-                robot.sweeperCommand(1.0);
+//                robot.raiseElevatorToPosition_Autonomous(.5,robot.DELIVER_PIXLE_POSITION);
+//                robot.sweeperCommand(1.0);
                 sleep(1000);
-                robot.sweeperCommand(0.0);
+//                robot.sweeperCommand(0.0);
                 sleep(2000);
             }
 
             robot.moveRobotAuto(robot.FORWARD, 0.3, 29);
             robot.rotateRobotAuto2(robot.TURN_LEFT, 180, 0.5);
             if ( initimpliments == true ) {
-                robot.raiseElevatorToPosition_Autonomous(1, robot.ELEVATOR_MID_POSITION);
-                robot.dump_pixle();
+                robot.raiseElevatorToPosition_Autonomous(1, robot.LOWER_RUNG_POSITION);
+//                robot.dump_pixle();
                 sleep(1000);
-                robot.reset_pixle_bucket();
+//                robot.reset_pixle_bucket();
                 sleep(2000);
                 robot.raiseElevatorToPosition_Autonomous(-.5, 0);
             }

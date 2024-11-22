@@ -7,22 +7,96 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
+import org.firstinspires.ftc.teamcode.utilities.CashServo;
 import org.firstinspires.ftc.teamcode.utilities.ElevatorControl;
 import org.firstinspires.ftc.teamcode.utilities.IMUUtility;
 import org.firstinspires.ftc.teamcode.utilities.IMUUtility2;
-import org.firstinspires.ftc.teamcode.utilities.ServoControl_Claw;
-import org.firstinspires.ftc.teamcode.utilities.ServoControl_ClawRotate;
 import org.firstinspires.ftc.teamcode.utilities.SweeperControl;
+import org.firstinspires.ftc.teamcode.utilities.VertClawElevatorControl;
+import org.firstinspires.ftc.teamcode.utilities.HorizontalSliderControl;
 import org.firstinspires.ftc.teamcode.utilities.WinchControl;
 import org.firstinspires.ftc.teamcode.utilities.pid_controller;
 
 public class Robot2024<_opMode> {
-    public final OpMode _opMode; //holds opmode object
 
-    //Constructor for our robot so this object knows about the opMode
     public Robot2024(OpMode opMode) {
         _opMode = opMode;
+        elevatorControl = new VertClawElevatorControl(_opMode,"vert_elev_motor");
+        horizontalSlideControl = new HorizontalSliderControl(_opMode,"horz_slide_motor");
     }
+
+    ///// Vertical Elevator Controls /////
+    /* The vertical elevator controls the elevator up and down as well as the servos to move samples
+    and specimens into oposition.  All the functions that can be call by the robot will be defined here
+     */
+    private VertClawElevatorControl elevatorControl;
+    //elevator control functions
+    public void raiseLowerElevator(double cmd) {
+        elevatorControl.raiseLowerElevator_T(cmd);
+    }
+    public int getElevatorPositition(){
+        return elevatorControl.getCurrentPostion();
+    }
+    public void raiseElevatorToPosition_Autonomous(double cmd, int DesiredPos) {
+        elevatorControl.raiseLowerElevatorToPosition_AUTO(cmd, DesiredPos);
+    }
+    public void setDesElevatorPosition_Teliop(int desHoldPosition){
+        elevatorControl.set_elevator_desired_position(desHoldPosition);
+    }
+    public void elevatorUpdate(double dt){
+        elevatorControl.updatePosControl(dt);
+    }
+    public void closeVertClaw (){
+        elevatorControl.closeClaw(.02);
+    }
+    public void openVertClaw(){
+        elevatorControl.openClaw(.1666666);
+    }
+    public void vertClawToDeliverPosition(double cmd){
+        elevatorControl.clawDeliverPosition(cmd);
+    }
+    public void vertClawToReceivePosition(double cmd){
+        elevatorControl.clawReceivePosition(cmd);
+    }
+
+    private HorizontalSliderControl horizontalSlideControl;
+    public int EXTEND_POSITION = 840;
+    public int EXTEND_FOR_SPECIMEN = (int)(.75*(840*.5));
+    public void extendSlider(double cmd) {
+        horizontalSlideControl.ExtendRetract_Slider(cmd);
+    }
+    public int getSliderPositition(){
+        return horizontalSlideControl.getCurrentPostion();
+    }
+    public void extentSliderToPosition_Autonomous(double cmd, int DesiredPos) {
+        horizontalSlideControl.extendSliderToPosition_AUTO(cmd, DesiredPos);
+    }
+    public void setDesSliderPosition(int desHoldPosition){
+        horizontalSlideControl.set_slider_desired_position(desHoldPosition);
+    }
+    public void sliderUpdate(double dt){
+        horizontalSlideControl.updatePosControl(dt);
+    }
+//    public void closeGrabber (double cmd){
+//        horizontalSlideControl.closeClaw(cmd);
+//    }
+//    public void openGrabber(double cmd){
+//        horizontalSlideControl.openClaw(cmd);
+//    }
+    public void setToDliverPosition(double cmd){
+        horizontalSlideControl.clawDeliverPosition(cmd);
+    }
+    public void setToGetSample(double cmd){
+        horizontalSlideControl.clawReceivePosition(cmd);
+    }
+
+    public int AUTO_VERT_DELIVER_UPPER_POSITION = 1550;
+    public int AUTO_VERT_DELIVER_LOWER_POSITION = 840;
+
+
+
+    public final OpMode _opMode; //holds opmode object
+
 
     //Define Robot Motor variables
     public DcMotor leftFrontMotor = null;
@@ -36,37 +110,9 @@ public class Robot2024<_opMode> {
     //Creates a new object for the Drive Library
     public CASH_Drive_Library CASHDriveLibrary = new CASH_Drive_Library();
 
-    private ServoControl_Claw ClawControl;
-    {
-        ClawControl = new ServoControl_Claw();
-    }
-
-    private ServoControl_ClawRotate RotateControl;
-    {
-        RotateControl = new ServoControl_ClawRotate();
-    }
-
-
-
     //Creates a new object of type Elevator Control
     //All Elevator Controls will be writen in Elevator Control
 
-     private ElevatorControl elevatorCode;
-    {
-        elevatorCode = new ElevatorControl();
-    }
-
-    private WinchControl winchCode;
-    {
-        winchCode = new WinchControl();
-    }
-
-    //Creates a new object of type Sweeper Control
-    //All Sweeper Controls will be written in Sweeper Control
-    private SweeperControl SweeperCode;
-    {
-       SweeperCode = new SweeperControl();
-    }
 
     /*
     //Control directions of the robot.  These should not be changed as these are specific to how the robot is designed
@@ -78,12 +124,13 @@ public class Robot2024<_opMode> {
 
     public double TURN_RIGHT = CASHDriveLibrary.TURN_RIGHT;
     public double TURN_LEFT = CASHDriveLibrary.TURN_LEFT;
-
-    public int DELIVER_PIXLE_POSITION = elevatorCode.PIXLE_DELIVER_POSITION;
-    public int ELEVATOR_MID_POSITION = elevatorCode.MID_POSITION;
-    public int ELEVATOR_HIGH_POSITION = elevatorCode.HIGH_POSITION;
-
-    public int WINCH_RAISE_POSITION = winchCode.RAISE_LIMIT;
+//
+    public int HIGH_RUNG_POSITION = 2000;
+    public int LOWER_RUNG_POSITION = 1000;
+    public int HIGH_BASKET_POSITION = 2000;
+    public int LOW_BASKET_POSITION = 1000;
+    public int SAMPLE_RECEIVE_POSITION = 200;
+//    public int ELEVATOR_HIGH_POSITION = elevatorControl.HIGH_POSITION;
 
     //This is the initialization for this years robot.
     //It initializes the following:
@@ -97,18 +144,22 @@ public class Robot2024<_opMode> {
         rightRearMotor = _opMode.hardwareMap.get(DcMotor.class, "right_rear_drive");
         rightRearMotor.setDirection(DcMotor.Direction.REVERSE);
         rightRearMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightRearMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftRearMotor = _opMode.hardwareMap.get(DcMotor.class, "left_rear_drive");
         leftRearMotor.setDirection(DcMotor.Direction.FORWARD);
         leftRearMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftRearMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftFrontMotor = _opMode.hardwareMap.get(DcMotor.class, "left_front_drive");
         leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
         leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         rightFrontMotor = _opMode.hardwareMap.get(DcMotor.class, "right_front_drive");
         rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
         rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //Initialize objects in common lib
         CASHDriveLibrary.init(_opMode);
@@ -120,54 +171,42 @@ public class Robot2024<_opMode> {
 
         robotIMU.initialize(_opMode,"imu");
         CASHDriveLibrary.imu = robotIMU;
+//        CASHDriveLibrary.imu.resetAngle();
 
         CASHDriveLibrary.init_rotations_pid();
         CASHDriveLibrary.init_distanceToWall_pid();
+
+        this.elevatorControl.resetElevatorMotorEncoder();
+        this.horizontalSlideControl.resetElevatorMotorEncoder();
     }
 
     public void resetIMU(){
         robotIMU.resetAngle();
     }
 
-    // This intitilizes the elevator and sweeper control.
-    // initializeImplements:  For All autonomous programse
-    //ONLY USE THIS FOR AUTO PROGRAMS
-    public void initializeImplements() {
-//        elevatorCode.init(_opMode, "elevator_motor");
-//        SweeperCode.init(_opMode, "sweeper_motor");
-//        winchCode.init(_opMode,"winch_motor");
-        ClawControl.init(_opMode, "claw_servo");
-        RotateControl.init(_opMode, "claw_rotate_servo");
+    public void GrabberUp(){
+        horizontalSlideControl.clawDeliverPosition(.1);
     }
 
-    public void DownPosition(double command){
-        RotateControl.DownPosition(command);
-
-
+    public void GrabberToPostion(double desPos){
+        horizontalSlideControl.clawDeliverPosition(desPos);
+    }
+    public void GrabberDown(){
+        horizontalSlideControl.clawReceivePosition(1);
+    }
+    public void GrabberOpen(){
+        horizontalSlideControl.openClaw(.35);
+    }
+    public void GrabberClose() {
+        horizontalSlideControl.closeClaw(.51);
     }
 
-    public void UpPosition(double command){
-        RotateControl.UpPosition(command);
-
-
-    }
-
-    public void openClaw(double command){
-        ClawControl.OpenClaw(command);
-
-
-    }
-    public void closeClaw(double command) {
-        ClawControl.CloseClaw(command);
-    }
 
     //ONLY USE THIS FOR TELIPOP
     //elevatorCode.intit2:  This initializes the implements but doesn't reset the encoders.
-    public void initializeImplements2() {
-        elevatorCode.init2(_opMode, "elevator_motor");
-        SweeperCode.init(_opMode, "sweeper_motor");
-        winchCode.init2(_opMode,"winch_motor");
-    }
+//    public void initializeImplements() {
+//        elevatorControl.resetElevatorMotorEncoder();
+//    }
 
 
     ////////////////////////////////////////New Navigation Methods////////////////////////////////
@@ -205,60 +244,6 @@ public class Robot2024<_opMode> {
 
     ////////////////////////////////All Functions to manipulate apparatuses on robot//////////////
 
-    //elevator control functions
-    public void raiseLowerElevator(double cmd) {
-        elevatorCode.raiseLowerElevator_T(cmd);
-    }
-    public int getElevatorPositition(){
-        return elevatorCode.getCurrentPostion();
-    }
-    public void raiseElevatorToPosition_Autonomous(double cmd, int DesiredPos) {
-        elevatorCode.raiseLowerElevatorToPosition_AUTO(cmd, DesiredPos);
-    }
-
-    public void setDesElevatorPosition_Teliop(int desHoldPosition){
-        elevatorCode.set_elevator_desired_position(desHoldPosition);
-    }
-    public void elevatorUpdate(double dt){
-        elevatorCode.updatePosControl(dt);
-    }
-
-    public void sweeperCommand(double cmd) {
-       SweeperCode.setSweeperCommand(cmd);
-    }
-    public void dump_pixle() {
-        elevatorCode.dump_pixle();
-    }
-    public void reset_pixle_bucket() {
-        elevatorCode.reset_pixle_bucket();
-    }
-
-    public void launch_drone () {
-        elevatorCode.release();
-            }
-    public void reset_launch () {
-        elevatorCode.reset_launch_pin();
-    }
-
-    public void setDesWinchPosition_Teliop(int desHoldPosition){
-        winchCode.set_winch_desired_position(desHoldPosition);
-    }
-    public void winchUpdate(double dt) {winchCode.updatePosControl(dt);}
-
-    public void raiseLowerWinch(double cmd) {
-        winchCode.raiseLowerWinch_T(cmd);
-    }
-
-    public int getWinchPositition(){
-        return winchCode.getCurrentPostion();
-    }
-
-    public void raise_hook(){
-        winchCode.raise_hook();
-    }
-    public void lower_hook(){
-        winchCode.reset_hookServo();
-    }
 
 
     //Teliop Auto controls
@@ -275,6 +260,22 @@ public class Robot2024<_opMode> {
     }
     public void updateDesDistFromWall(double dt, double distSensor1, double distSensor2){
         CASHDriveLibrary.updateTeliopDesDistFromWall(dt,distSensor1, distSensor2);
+    }
+
+    public int getDrivingEncoderPosition(){
+        return CASHDriveLibrary.getRightRearEncoderTick();
+    }
+    public int getRREncoder(){
+        return CASHDriveLibrary.getRREncoder();
+    }
+    public int getLREncoder(){
+        return CASHDriveLibrary.getLREncoder();
+    }
+    public int getLFEncoder(){
+        return CASHDriveLibrary.getLFEncoder();
+    }
+    public int getRFEncoder(){
+        return CASHDriveLibrary.getRFEncoder();
     }
 }
 

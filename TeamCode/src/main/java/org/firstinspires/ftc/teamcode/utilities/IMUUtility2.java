@@ -27,13 +27,13 @@ public class IMUUtility2 {
         imu = _opMode.hardwareMap.get(IMU.class, "imu");
 
         IMU.Parameters parameters2 = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP));
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters2);
 
 
-//        this.resetAngle();
+        this.resetAngle();
     }
 
     public Orientation getCurrentAngle(){
@@ -87,7 +87,7 @@ public class IMUUtility2 {
 
         Orientation angles = imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
-        double deltaAngle = angles.secondAngle - lastAngles.thirdAngle;
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
 //        RobotLog.i(String.format("Prev Angle %f Current angle %f",lastAngles.thirdAngle,angles.thirdAngle));
 
         if (deltaAngle < -180)
@@ -141,7 +141,7 @@ public class IMUUtility2 {
     {
         lastAngles = imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX,AngleUnit.DEGREES);
         imu.resetYaw();
-//        RobotLog.i(String.format("RESETTING IMU ANGLE: %f",lastAngles.firstAngle));
+        RobotLog.i(String.format("RESETTING IMU ANGLE: %f",lastAngles.firstAngle));
         desiredGlobalAngle_d = 0;
     }
 }

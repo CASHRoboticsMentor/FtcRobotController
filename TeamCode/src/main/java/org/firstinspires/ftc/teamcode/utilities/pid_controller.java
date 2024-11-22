@@ -23,7 +23,7 @@ public class pid_controller {
 
     public double out;
 
-    void init_pid(double P, double I, double D){
+    public void init_pid(double P, double I, double D){
         Kp=P;
         Ki=I;
         Kd=D;

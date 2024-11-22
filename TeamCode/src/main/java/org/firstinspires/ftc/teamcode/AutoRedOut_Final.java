@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -53,7 +54,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  */
 
 @Autonomous(name="AutoRedOut_Final", group="Autonomous LinearOpMode")
-//@Disabled
+@Disabled
 public class AutoRedOut_Final extends LinearOpMode {
     Robot2024 robot;
     private DistanceSensor sensorRange;
@@ -73,7 +74,7 @@ public class AutoRedOut_Final extends LinearOpMode {
         robot.initializeRobot();
         robot.resetIMU();
         if ( initimpliments == true ) {
-            robot.initializeImplements();
+//            robot.initializeImplements();
         }
         telemetry.addData("Status", "Initialized");
         sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
@@ -82,7 +83,7 @@ public class AutoRedOut_Final extends LinearOpMode {
         runtime.reset();
          while (opModeIsActive()) {                                                         //
              //First step is to reset the bucket so that it is held into position.
-             robot.reset_pixle_bucket();
+//             robot.reset_pixle_bucket();
 
              //Step 1:  Setup robot to scan the first position for the team prop
              robot.moveRobotAuto(robot.RIGHT, 0.3, 13);
@@ -103,10 +104,10 @@ public class AutoRedOut_Final extends LinearOpMode {
                  robot.raiseElevatorToPosition_Autonomous(.5,10);
 
                  if ( initimpliments == true ) {
-                     robot.raiseElevatorToPosition_Autonomous(.5,robot.DELIVER_PIXLE_POSITION);
-                     robot.sweeperCommand(1.0);
+                     robot.raiseElevatorToPosition_Autonomous(.5,robot.LOWER_RUNG_POSITION);
+//                     robot.sweeperCommand(1.0);
                      sleep(1000);
-                     robot.sweeperCommand(0.0);
+//                     robot.sweeperCommand(0.0);
                  }
 
                  robot.moveRobotAuto(robot.FORWARD, 0.3, 15);
@@ -119,10 +120,10 @@ public class AutoRedOut_Final extends LinearOpMode {
                  robot.moveRobotAuto_DistanceFromWall(robot.REVERSE, 0.5, 15,4,sensorRange);
                  /////////////////////////////////////////////////////
                  if ( initimpliments == true ) {
-                     robot.raiseElevatorToPosition_Autonomous(1, robot.ELEVATOR_MID_POSITION);
-                     robot.dump_pixle();
+                     robot.raiseElevatorToPosition_Autonomous(1, robot.LOWER_RUNG_POSITION);
+//                     robot.dump_pixle();
                      sleep(2000);
-                     robot.reset_pixle_bucket();
+//                     robot.reset_pixle_bucket();
                      sleep(2000);
                      robot.raiseElevatorToPosition_Autonomous(-.5, 0);
                  }
@@ -144,10 +145,10 @@ public class AutoRedOut_Final extends LinearOpMode {
                  robot.moveRobotAuto(robot.LEFT, 0.3, 4);
                  robot.moveRobotAuto(robot.REVERSE, 0.3, 9);
                  if ( initimpliments == true ) {
-                     robot.raiseElevatorToPosition_Autonomous(.5,robot.DELIVER_PIXLE_POSITION);
-                     robot.sweeperCommand(1.0);
+                     robot.raiseElevatorToPosition_Autonomous(.5,robot.LOWER_RUNG_POSITION);
+//                     robot.sweeperCommand(1.0);
                      sleep(1000);
-                     robot.sweeperCommand(0.0);
+//                     robot.sweeperCommand(0.0);
                  }
                  robot.raiseElevatorToPosition_Autonomous(-.5, 0);
                  robot.moveRobotAuto(robot.FORWARD, 0.5, 26);
@@ -159,10 +160,10 @@ public class AutoRedOut_Final extends LinearOpMode {
                  robot.moveRobotAuto_DistanceFromWall(robot.REVERSE, 0.5, 18,4,sensorRange);
                  /////////////////////////////////////////////////////
                  if ( initimpliments == true ) {
-                     robot.raiseElevatorToPosition_Autonomous(1, robot.ELEVATOR_MID_POSITION);
-                     robot.dump_pixle();
+                     robot.raiseElevatorToPosition_Autonomous(1, robot.LOWER_RUNG_POSITION);
+//                     robot.dump_pixle();
                      sleep(1000);
-                     robot.reset_pixle_bucket();
+//                     robot.reset_pixle_bucket();
                      robot.raiseElevatorToPosition_Autonomous(-.5, 0);
                  }
 
@@ -178,10 +179,10 @@ public class AutoRedOut_Final extends LinearOpMode {
              robot.moveRobotAuto(robot.RIGHT, 0.3, 3);
              robot.moveRobotAuto(robot.REVERSE, 0.3, 9);
              if ( initimpliments == true ) {
-                 robot.raiseElevatorToPosition_Autonomous(.5,robot.DELIVER_PIXLE_POSITION);
-                 robot.sweeperCommand(1.0);
+                 robot.raiseElevatorToPosition_Autonomous(.5,robot.LOWER_RUNG_POSITION);
+//                 robot.sweeperCommand(1.0);
                  sleep(1000);
-                 robot.sweeperCommand(0.0);
+//                 robot.sweeperCommand(0.0);
              }
              robot.raiseElevatorToPosition_Autonomous(-.5, 0);
              robot.moveRobotAuto(robot.FORWARD, 0.3, 11);
@@ -193,10 +194,10 @@ public class AutoRedOut_Final extends LinearOpMode {
              robot.moveRobotAuto_DistanceFromWall(robot.REVERSE, 0.5, 18,4,sensorRange);
              /////////////////////////////////////////////////////
              if ( initimpliments == true ) {
-                 robot.raiseElevatorToPosition_Autonomous(1, robot.ELEVATOR_MID_POSITION);
-                 robot.dump_pixle();
+                 robot.raiseElevatorToPosition_Autonomous(1, robot.LOWER_RUNG_POSITION);
+//                 robot.dump_pixle();
                  sleep(1000);
-                 robot.reset_pixle_bucket();
+//                 robot.reset_pixle_bucket();
                  robot.raiseElevatorToPosition_Autonomous(-.5, 0);
                  sleep(300000000);
              }

@@ -37,7 +37,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Robot2024;
+import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -53,10 +53,10 @@ import org.firstinspires.ftc.teamcode.Robot2024;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="StopUsingDistancSensor", group="Autonomous LinearOpMode")
+@Autonomous(name="AutoRedBasket_rotate", group="Autonomous LinearOpMode")
 //@Disabled
-public class StopUsingDistancSensor extends LinearOpMode {
-    Robot2024 robot;
+public class AutoRedBasket_rotate extends LinearOpMode {
+    private Robot2024 robot;
     //This sensor is used to detect the team prop.  There are two of them, one on left and one on
     //right.  The each sensor is used for a different start location of the robot depending on
     //color and alliance.
@@ -71,54 +71,68 @@ public class StopUsingDistancSensor extends LinearOpMode {
     //Set this to true to run with full robot
     //Set this to false if you want to run just the driving portion of the bot.
     private boolean initimpliments = true;
-// tells whether we want elevator, bucket or sweeper active,
-    // true = active
-    // false = unactive
-     /*
+    public CASH_Drive_Library CASHDriveLibrary;
+
+    final private double distanceToCage = 22;
+    final private double distanceBackToWall = 20;
+    final private double distanceToParking = 50;
+
+    /*
      * Code to run ONCE when the driver hits INIT
      */
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode() throws InterruptedException {
         //create the robot object that basically activates everything in Robot2024.java file.
-        robot = new Robot2024((this));
-        //initializes the Driving portion of the robot
+        robot = new Robot2024(this);
 
         robot.initializeRobot();
         robot.resetIMU();
-        if ( initimpliments == true ) {
-            robot.initializeImplements();
-            //NOTE:  We reset everything because this is beginning of match
-        }
+//        robot.initializeImplements();
+        CASHDriveLibrary = robot.CASHDriveLibrary;
         telemetry.addData("Status", "Initialized");
-
-        //Setup the Distance Sensor for sensing the team prop.
-        sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range2");
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
         while (opModeIsActive()) {
             //First step is to reset the bucket so that it is held into position.
-            robot.reset_pixle_bucket();
-//            robot.moveRobotAuto(robot.REVERSE, 0.3, 18);
-            robot.moveRobotAuto_DistanceFromWall(robot.REVERSE, 0.5, 60,8,sensorRange);
-            robot.sweeperCommand(0);
-            sleep(500);
-            robot.raiseElevatorToPosition_Autonomous(.5,robot.ELEVATOR_MID_POSITION);
-            sleep(500);
-            robot.dump_pixle();
+//            robot.reset_pixle_bucket();
+            robot.closeVertClaw();
+            //Step 1:  Setup robot to scan the first position for the team prop
+            robot.moveRobotAuto(robot.FORWARD, 0.3, distanceToCage);
+            sleep(1000);
+            robot.raiseElevatorToPosition_Autonomous(1,robot.AUTO_VERT_DELIVER_UPPER_POSITION);
+            robot.vertClawToDeliverPosition(1);
             sleep(2000);
-            robot.reset_pixle_bucket();
-            robot.raiseElevatorToPosition_Autonomous(-.5,0);
 
-            robot.sweeperCommand(1.0);
-
-            //Get Ave Distance from distance sensor
-            double Average = getAverageDistanceFromSensor(sensorRange);
+            robot.raiseElevatorToPosition_Autonomous(-.25,robot.AUTO_VERT_DELIVER_LOWER_POSITION);
+            sleep(1000);
+            robot.openVertClaw();
             sleep(500);
-            robot.moveRobotAuto(robot.FORWARD, 0.3, 18);
+            robot.vertClawToReceivePosition(0);
+            sleep(1250);
+            robot.raiseElevatorToPosition_Autonomous(-1,0);
+            robot.moveRobotAuto(robot.LEFT,.5,27);
+            robot.moveRobotAuto(robot.FORWARD, 0.3, distanceBackToWall);
+            robot.moveRobotAuto(robot.LEFT,.5,13);
+            robot.extentSliderToPosition_Autonomous(.5,robot.EXTEND_FOR_SPECIMEN);
+            robot.moveRobotAuto(robot.REVERSE,.3,2 );
+            sleep(500);
+            robot.GrabberOpen();
+            sleep(1500);
+            robot.GrabberDown();
+            sleep(1500);
+            robot.GrabberClose();
+            robot.GrabberUp();
+            robot.extentSliderToPosition_Autonomous(.5,0);
 
+           // robot.moveRobotAuto(robot.RIGHT,.5,distanceToParking);
+
+
+            telemetry.addData("Done ", robot.getTicks());
+            telemetry.update();
+            sleep(30000);
          }
 
    }
@@ -129,7 +143,7 @@ public class StopUsingDistancSensor extends LinearOpMode {
        double Sum=0;
        double Average;
        double dist;
-       while ( NumberOfSamples <= 30  && opModeIsActive() ) {
+       while ( NumberOfSamples <= 100  && opModeIsActive() ) {
            dist = dist_sensor.getDistance(DistanceUnit.INCH);
            Sum = Sum + dist;
            NumberOfSamples = NumberOfSamples + 1;
