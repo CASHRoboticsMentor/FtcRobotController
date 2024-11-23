@@ -74,8 +74,8 @@ public class AutoRedDepo extends LinearOpMode {
     public CASH_Drive_Library CASHDriveLibrary;
 
 
-    final private double distanceToCage = 22;
-    final private double distanceBackToWall = 20;
+    final private double distanceToCage = 25;
+    final private double distanceBackToWall = 22;
     final private double distanceToParking = 30;
 
     /*
@@ -88,6 +88,7 @@ public class AutoRedDepo extends LinearOpMode {
         robot = new Robot2024(this);
 
         robot.initializeRobot();
+        robot.resetImplements();
         robot.resetIMU();
         CASHDriveLibrary = robot.CASHDriveLibrary;
         telemetry.addData("Status", "Initialized");
@@ -100,11 +101,11 @@ public class AutoRedDepo extends LinearOpMode {
 //            robot.reset_pixle_bucket();
             robot.closeVertClaw();
             //Step 1:  Setup robot to scan the first position for the team prop
-            robot.moveRobotAuto(robot.FORWARD, 0.3, distanceToCage);
-            sleep(1000);
+            robot.moveRobotAuto(robot.REVERSE, 0.3, distanceToCage);
+            //sleep(1000);
             robot.raiseElevatorToPosition_Autonomous(1,robot.AUTO_VERT_DELIVER_UPPER_POSITION);
             robot.vertClawToDeliverPosition(1);
-            sleep(2000);
+            sleep(1000);
 
             robot.raiseElevatorToPosition_Autonomous(-.25,robot.AUTO_VERT_DELIVER_LOWER_POSITION);
             sleep(1000);
@@ -112,10 +113,22 @@ public class AutoRedDepo extends LinearOpMode {
             sleep(500);
             robot.vertClawToReceivePosition(0);
             sleep(1250);
-            robot.raiseElevatorToPosition_Autonomous(-1,0);
-            robot.moveRobotAuto(robot.REVERSE, 0.3, distanceBackToWall);
-            robot.moveRobotAuto(robot.RIGHT,.5,distanceToParking);
+            robot.raiseElevatorToPosition_Autonomous(-1,20);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 27);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 30);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
+            robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 46);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
+            robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 36);
+            robot.rotateRobotAuto2(robot.TURN_LEFT, 90, 0.3);
+            robot.moveRobotAuto(robot.REVERSE, 0.7, 25);
 
+            robot.raiseElevatorToPosition_Autonomous(1,robot.PARKING_ELEVATOR_POSITION);
+            robot.vertClawToDeliverPosition(1);
+            sleep(2000);
+            robot.moveRobotAuto(robot.REVERSE, 0.2, 8.5);
             telemetry.addData("Done ", robot.getTicks());
             telemetry.update();
             sleep(30000);

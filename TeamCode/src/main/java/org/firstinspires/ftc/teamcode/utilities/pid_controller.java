@@ -46,6 +46,8 @@ public class pid_controller {
         limMax = maxCmd;
         double error= setPoint - measurment;
 
+
+
         //Prop gain
         double proportional = Kp*error;
 

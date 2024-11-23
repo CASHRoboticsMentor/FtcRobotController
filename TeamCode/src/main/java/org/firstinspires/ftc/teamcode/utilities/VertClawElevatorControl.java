@@ -25,7 +25,7 @@ public class VertClawElevatorControl {
         VertClawControl = new CashServo(_opMode,"vert_claw");
         VerticalClawRotate = new CashServo(_opMode,"vert_claw_rotate");
         pos_pid = new pid_controller(); // PID control for position controls
-        pos_pid.init_pid(.0025, 0, 0);  //Position controller to control elevator to a specific position.
+        pos_pid.init_pid(0.0025, 0.00001, 0);  //Position controller to control elevator to a specific position.
     }
     String m_configName;
     public OpMode _opMode;
@@ -40,15 +40,17 @@ public class VertClawElevatorControl {
 
     ///This area is for config values that set limits of the elevator control
     private double MAX_POWER = 1; //will not let the motor faster than this
-    private double RAISE_LIMIT = 4230;  // encoder value that is the highest we want the elevator to go.
+    private double RAISE_LIMIT = 830;  // encoder value that is the highest we want the elevator to go.
     private double LOWER_LIMIT = 0;  // encoder value for the lowest we want the elevator to go.
 
     //This is the area that we create the snubbing of the end of travel for the elevator.
     //Snubbing is slowing the motor close to the end of travel so that we don't slam the elevator to the ends.
-    private double UPPERSNUB = 3500; // Encoder value when we slow the motor down when extending to max
-    private double UPPERSNUBFACTOR = 0.5; // The factor that we slow the command down by when extending
-    private double LOWERSNUB = 500; // Encoder value when we slow the motor down when retracting
-    private double LOWERSNUBFACTOR = 0.25;// The factor that we slow the command down by when retracting
+    private double UPPERSNUB = 500; // Encoder value when we slow the motor down when extending to max
+    private double UPPERSNUBFACTOR = .75; // The factor that we slow the command down by when extending
+    private double LOWERSNUB = 300; // Encoder value when we slow the motor down when retracting
+    private double LOWERSNUBFACTOR = 0.1;// The factor that we slow the command down by when retracting
+
+    private double previousElevCmd = 0;
 
 
 
@@ -87,6 +89,7 @@ public class VertClawElevatorControl {
         }
         RobotLog.i(String.format("Elevator encoder %d", elevator_motor.getCurrentPosition()));
         elevator_motor.setPower(elevatorCommand);
+     //   previousElevCmd = elevatorCommand;
     }
 
     //This method is used to set the position of the elevator in auto mode.
@@ -126,7 +129,9 @@ public class VertClawElevatorControl {
             hold_position_setpoint = LOWER_LIMIT;
         } else {
             hold_position_setpoint = hold_set_point;
+
         }
+//        RobotLog.i(String.format("ELEV:  Set position: %i",hold_set_point));
     }
 
     //This is the update method that is needed to activate the PID to control the elevator to a position.
@@ -160,9 +165,11 @@ public class VertClawElevatorControl {
                 maxCmd,
                 dt);
 
-//        RobotLog.i(String.format("setPoint %.2f, actual postition: %d, dt: %.2f",
-//                hold_position_setpoint,elevator_motor.getCurrentPosition(),dt));
-
+        RobotLog.i(String.format("setPoint %.2f, actual postition: %d, dt: %.5f,  ELEVCMD: %.2f",
+                hold_position_setpoint,elevator_motor.getCurrentPosition(),dt*1000,elevCmd));
+//        if (Math.abs(hold_position_setpoint - elevator_motor.getCurrentPosition()) < 2 ){
+//            elevCmd = previousElevCmd;
+//        }
         elevator_motor.setPower(elevCmd);
     }
 

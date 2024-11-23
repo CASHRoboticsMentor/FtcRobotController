@@ -101,6 +101,10 @@ public class CASH2024_25_Meet1 extends OpMode {
     boolean transferTimerActive = false;
 
     boolean transferClawOpenIsActive = false;
+
+    int HOLDPOS = 0;
+    double previousElevatorCommand = 0;
+    boolean putElevInHoldControl = false;
     @Override
 
     public void init() {
@@ -158,7 +162,7 @@ public class CASH2024_25_Meet1 extends OpMode {
             robot.GrabberOpen();
             inStartup = false;
         }
-        boolean slowMode = gamepad2.b;
+        boolean slowMode = gamepad1.b;
         if (slowMode && !isSlowModeTimerActive){
 
             isSlowModeTimerActive = true;
@@ -177,7 +181,7 @@ public class CASH2024_25_Meet1 extends OpMode {
         }
         double drive_y = -gamepad1.left_stick_y * slowFactor;
         double drive_x = gamepad1.left_stick_x * slowFactor;
-        double turn_x = 0.75 * gamepad1.right_stick_x * slowFactor;
+        double turn_x =  gamepad1.right_stick_x * slowFactor;
 
         //Sample/Specimen Grabber
 //        boolean horzRotateAction = gamepad1.left_bumper;
@@ -190,7 +194,7 @@ public class CASH2024_25_Meet1 extends OpMode {
         boolean vertClawAction = gamepad2.right_bumper;
 
         //Vertical Elevator Control
-        double elevatorCommand = -gamepad2.left_stick_y;
+        double elevatorCommand = -gamepad2.left_stick_y*1.0;
         double horizSlideCommand = gamepad2.right_stick_x*.25;
 
         float autoExtend = gamepad1.right_trigger;
@@ -324,16 +328,47 @@ public class CASH2024_25_Meet1 extends OpMode {
             robot.setDesElevatorPosition_Teliop(robot.HIGH_RUNG_POSITION);
             autoraiseactive = true;
         }
+
+        double elevFinalCmd = 0;
+        //if joystick is centered or is on its way to center we want to hold the last position when the command changes direction
+        //cmd changing logic
+//
+//        if (elevatorCommand < previousElevatorCommand ){
+//            //we need to set the elevaotr position to the enconder position at the prev command
+//            robot.setDesElevatorPosition_Teliop(robot.getElevatorPositition());
+//            putElevInHoldControl = true;
+//        }
+//
+//        if (!putElevInHoldControl){
+//            robot.raiseLowerElevator(elevatorCommand);
+//        }else{
+//            robot.elevatorUpdate(loopTime.seconds());
+//        }
+//
+//        previousElevatorCommand = elevatorCommand;
+
+
+//
+
+
         if (Math.abs(elevatorCommand) > .025) {
 //            AutoElevatorActive = false;
             robot.raiseLowerElevator(elevatorCommand);
-            robot.setDesElevatorPosition_Teliop(robot.getElevatorPositition());
+            HOLDPOS = robot.getElevatorPositition();
             autoraiseactive = false;
-        } else {
+        }
+
+        if (elevatorCommand > previousElevatorCommand) {
+            
+        }
+            else {
+            robot.setDesElevatorPosition_Teliop(HOLDPOS);
             robot.elevatorUpdate(loopTime.seconds());
         }
-        RobotLog.i(String.format("elevator position %d",robot.getElevatorPositition()));
 
+        RobotLog.i(String.format("ELEV: raw Command: %.4f Last Des Postion: %d HOLD POS: %d",elevatorCommand,robot.getElevatorPositition(), HOLDPOS));
+//        RobotLog.i(String.format("driver position %d",robot.getDrivingEncoderPosition()));
+        RobotLog.i(String.format("elevator position %d",robot.getElevatorPositition()));
 
         // Control of the Slider
         if (autoExtend >0.1){

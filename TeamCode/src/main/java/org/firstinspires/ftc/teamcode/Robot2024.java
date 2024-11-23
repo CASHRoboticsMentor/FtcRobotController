@@ -90,8 +90,9 @@ public class Robot2024<_opMode> {
         horizontalSlideControl.clawReceivePosition(cmd);
     }
 
-    public int AUTO_VERT_DELIVER_UPPER_POSITION = 1550;
-    public int AUTO_VERT_DELIVER_LOWER_POSITION = 840;
+    public int AUTO_VERT_DELIVER_UPPER_POSITION = 350;
+    public int AUTO_VERT_DELIVER_LOWER_POSITION = 150;
+    public int PARKING_ELEVATOR_POSITION = 120;
 
 
 
@@ -143,22 +144,22 @@ public class Robot2024<_opMode> {
         // step (using the FTC Robot Controller app on the phone).
         rightRearMotor = _opMode.hardwareMap.get(DcMotor.class, "right_rear_drive");
         rightRearMotor.setDirection(DcMotor.Direction.REVERSE);
-        rightRearMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightRearMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRearMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftRearMotor = _opMode.hardwareMap.get(DcMotor.class, "left_rear_drive");
         leftRearMotor.setDirection(DcMotor.Direction.FORWARD);
-        leftRearMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftRearMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRearMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftFrontMotor = _opMode.hardwareMap.get(DcMotor.class, "left_front_drive");
         leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-        leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         rightFrontMotor = _opMode.hardwareMap.get(DcMotor.class, "right_front_drive");
         rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-        rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //Initialize objects in common lib
@@ -176,13 +177,19 @@ public class Robot2024<_opMode> {
         CASHDriveLibrary.init_rotations_pid();
         CASHDriveLibrary.init_distanceToWall_pid();
 
-        this.elevatorControl.resetElevatorMotorEncoder();
-        this.horizontalSlideControl.resetElevatorMotorEncoder();
+//        this.elevatorControl.resetElevatorMotorEncoder();
+//        this.horizontalSlideControl.resetElevatorMotorEncoder();
     }
 
     public void resetIMU(){
         robotIMU.resetAngle();
     }
+
+    public void resetImplements(){
+        this.elevatorControl.resetElevatorMotorEncoder();
+        this.horizontalSlideControl.resetElevatorMotorEncoder();
+    }
+
 
     public void GrabberUp(){
         horizontalSlideControl.clawDeliverPosition(.1);
