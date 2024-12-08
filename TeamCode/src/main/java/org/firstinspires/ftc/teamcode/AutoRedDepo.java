@@ -53,7 +53,7 @@ import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="AutoRedDepo", group="Autonomous LinearOpMode")
+@Autonomous(name="AutoRedDepo_Meet2Old", group="Autonomous LinearOpMode")
 //@Disabled
 public class AutoRedDepo extends LinearOpMode {
     private Robot2024 robot;
@@ -85,7 +85,7 @@ public class AutoRedDepo extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //create the robot object that basically activates everything in Robot2024.java file.
-        robot = new Robot2024(this);
+        robot = new Robot2024(this,true);
 
         robot.initializeRobot();
         robot.resetImplements();
@@ -113,7 +113,7 @@ public class AutoRedDepo extends LinearOpMode {
             sleep(500);
             robot.vertClawToReceivePosition(0);
             sleep(1250);
-            robot.raiseElevatorToPosition_Autonomous(-1,20);
+//            robot.raiseElevatorToPosition_Autonomous(-1,20);
             robot.moveRobotAuto(robot.LEFT, 0.6, 27);
             robot.moveRobotAuto(robot.REVERSE, 0.6, 30);
             robot.moveRobotAuto(robot.LEFT, 0.6, 14);

@@ -31,9 +31,13 @@ package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
 
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -53,16 +57,29 @@ import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="AutoRedBasket_rotate", group="Autonomous LinearOpMode")
+@Autonomous(name="AutoRedDepo_Meet2", group="Autonomous LinearOpMode")
 //@Disabled
-public class AutoRedBasket_rotate extends LinearOpMode {
+public class AutoRedDepo_Meet2 extends LinearOpMode {
     private Robot2024 robot;
-    //This sensor is used to detect the team prop.  There are two of them, one on left and one on
-    //right.  The each sensor is used for a different start location of the robot depending on
-    //color and alliance.
-    private DistanceSensor sensorRange;
-    //Variable to hold the distance value measured from the Distance sensor
-    private double distance;
+
+    /////////////////
+    private PIDController controller;
+    public static double p=0.005, i = .25, d = 0;
+    public static double f = .075;
+
+    public static double pFactor = .1;
+
+    public static int target = 0;
+
+    private DcMotorEx elevatorMotor_BF;
+    ////////////////////
+
+    private Servo verticalClawServo;
+    public static double vertClawCloseCmdVal = 0.02;
+    public static double vertClawOpenCmdVal = 0.16666666;
+    private Servo verticalClawRotateServo;
+    public static double vertClawRotUpCmdVal = 1.0;
+    public static double vertClawRotDwCmdVal = 0.03;
 
     //Variable that holds the runtime of the operation
     private ElapsedTime runtime = new ElapsedTime();
@@ -73,9 +90,10 @@ public class AutoRedBasket_rotate extends LinearOpMode {
     private boolean initimpliments = true;
     public CASH_Drive_Library CASHDriveLibrary;
 
-    final private double distanceToCage = 22;
-    final private double distanceBackToWall = 20;
-    final private double distanceToParking = 50;
+
+    final private double distanceToCage = 25;
+    final private double distanceBackToWall = 22;
+    final private double distanceToParking = 30;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -84,12 +102,19 @@ public class AutoRedBasket_rotate extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //create the robot object that basically activates everything in Robot2024.java file.
-        robot = new Robot2024(this,true);
+        robot = new Robot2024(this);
+
+        controller = new PIDController(p,i,d);
+        elevatorMotor_BF = hardwareMap.get(DcMotorEx.class,"vert_elev_motor");
+        elevatorMotor_BF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elevatorMotor_BF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        verticalClawServo = hardwareMap.get(Servo.class,"vert_claw");
+        verticalClawRotateServo = hardwareMap.get(Servo.class,"vert_claw_rotate");
 
         robot.initializeRobot();
+//        robot.resetImplements();
         robot.resetIMU();
-        robot.resetImplements();
-//        robot.initializeImplements();
         CASHDriveLibrary = robot.CASHDriveLibrary;
         telemetry.addData("Status", "Initialized");
 
@@ -99,39 +124,48 @@ public class AutoRedBasket_rotate extends LinearOpMode {
         while (opModeIsActive()) {
             //First step is to reset the bucket so that it is held into position.
 //            robot.reset_pixle_bucket();
-            robot.closeVertClaw();
+            closeVertClaw2();
             //Step 1:  Setup robot to scan the first position for the team prop
             robot.moveRobotAuto(robot.REVERSE, 0.3, distanceToCage);
+            //sleep(1000);
+//            robot.raiseElevatorToPosition_Autonomous(1,robot.AUTO_VERT_DELIVER_UPPER_POSITION);
+            while(opModeIsActive() && elevatorMotor_BF.getCurrentPosition() <= robot.AUTO_VERT_DELIVER_UPPER_POSITION){
+                putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),robot.AUTO_VERT_DELIVER_UPPER_POSITION);
+                telemetry.addData("pos", elevatorMotor_BF.getCurrentPosition());
+                telemetry.addData("target", robot.AUTO_VERT_DELIVER_UPPER_POSITION);
+                telemetry.update();
+            }
+            sleep(300000);
+            vertClawToDeliverPosition2();
             sleep(1000);
-            robot.raiseElevatorToPosition_Autonomous(1,robot.AUTO_VERT_DELIVER_UPPER_POSITION);
-            robot.vertClawToDeliverPosition(1);
-            sleep(2000);
 
-            robot.raiseElevatorToPosition_Autonomous(-.25,robot.AUTO_VERT_DELIVER_LOWER_POSITION);
+//            robot.raiseElevatorToPosition_Autonomous(-.25,robot.AUTO_VERT_DELIVER_LOWER_POSITION);
+            putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),robot.AUTO_VERT_DELIVER_LOWER_POSITION);
             sleep(1000);
-            robot.openVertClaw();
+            openVertClaw2();
             sleep(500);
-            robot.vertClawToReceivePosition(0);
+            vertClawToReceivePosition2();
             sleep(1250);
-            robot.raiseElevatorToPosition_Autonomous(-1,0);
-            robot.moveRobotAuto(robot.RIGHT,.5,27);
-            robot.moveRobotAuto(robot.REVERSE, 0.3, distanceBackToWall);
-            robot.moveRobotAuto(robot.RIGHT,.5,13);
-            robot.extentSliderToPosition_Autonomous(.5,robot.EXTEND_FOR_SPECIMEN);
-            robot.moveRobotAuto(robot.FORWARD,.3,2 );
-            sleep(500);
-            robot.GrabberOpen();
-            sleep(1500);
-            robot.GrabberDown();
-            sleep(1500);
-            robot.GrabberClose();
-            robot.GrabberUp();
-            robot.extentSliderToPosition_Autonomous(.5,0);
+//            robot.raiseElevatorToPosition_Autonomous(-1,20);
+            putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),20);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 27);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 30);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
+            robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 46);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
+            robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 36);
+            robot.rotateRobotAuto2(robot.TURN_LEFT, 90, 0.3);
+            robot.moveRobotAuto(robot.REVERSE, 0.7, 25);
 
-           // robot.moveRobotAuto(robot.RIGHT,.5,distanceToParking);
-
-
-            telemetry.addData("Done ", robot.getTicks());
+//            robot.raiseElevatorToPosition_Autonomous(1,robot.PARKING_ELEVATOR_POSITION);
+            putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),robot.PARKING_ELEVATOR_POSITION);
+            vertClawToDeliverPosition2();
+            sleep(2000);
+            robot.moveRobotAuto(robot.REVERSE, 0.2, 8.5);
+            telemetry.addData("pos", elevatorMotor_BF.getCurrentPosition());
+            telemetry.addData("target", robot.AUTO_VERT_DELIVER_UPPER_POSITION);
             telemetry.update();
             sleep(30000);
          }
@@ -156,4 +190,26 @@ public class AutoRedBasket_rotate extends LinearOpMode {
        telemetry.update();
        return Average;
    }
+
+    public void closeVertClaw2 (){
+
+        verticalClawServo.setPosition(vertClawCloseCmdVal);
+    }
+    public void openVertClaw2(){
+        verticalClawServo.setPosition(vertClawOpenCmdVal);
+    }
+    public void vertClawToDeliverPosition2(){
+        verticalClawRotateServo.setPosition(vertClawRotUpCmdVal);
+    }
+    public void vertClawToReceivePosition2(){
+        verticalClawRotateServo.setPosition(vertClawRotDwCmdVal);
+    }
+
+    public void putElevatorAtPosition(int currentPosition, int targetPosition){
+        double pid = controller.calculate(currentPosition,targetPosition);
+        double ff = f;
+
+        double power = pid + ff;
+        elevatorMotor_BF.setPower(power);
+    }
 }

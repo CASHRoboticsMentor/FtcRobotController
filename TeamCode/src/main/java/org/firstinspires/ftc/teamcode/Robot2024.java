@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.utilities.CashServo;
 import org.firstinspires.ftc.teamcode.utilities.ElevatorControl;
 import org.firstinspires.ftc.teamcode.utilities.IMUUtility;
 import org.firstinspires.ftc.teamcode.utilities.IMUUtility2;
+import org.firstinspires.ftc.teamcode.utilities.NewVertElevatorControl;
 import org.firstinspires.ftc.teamcode.utilities.SweeperControl;
 import org.firstinspires.ftc.teamcode.utilities.VertClawElevatorControl;
 import org.firstinspires.ftc.teamcode.utilities.HorizontalSliderControl;
@@ -21,8 +22,18 @@ public class Robot2024<_opMode> {
 
     public Robot2024(OpMode opMode) {
         _opMode = opMode;
-        elevatorControl = new VertClawElevatorControl(_opMode,"vert_elev_motor");
+//        elevatorControl = new VertClawElevatorControl(_opMode,"vert_elev_motor");
         horizontalSlideControl = new HorizontalSliderControl(_opMode,"horz_slide_motor");
+//        elevatorControl2 = new NewVertElevatorControl(_opMode,"vert_elev_motor");
+    }
+
+    public Robot2024(OpMode opMode, boolean justForauto) {
+        _opMode = opMode;
+        if (justForauto) {
+            elevatorControl = new VertClawElevatorControl(_opMode, "vert_elev_motor");
+        }
+        horizontalSlideControl = new HorizontalSliderControl(_opMode,"horz_slide_motor");
+//        elevatorControl2 = new NewVertElevatorControl(_opMode,"vert_elev_motor");
     }
 
     ///// Vertical Elevator Controls /////
@@ -30,12 +41,42 @@ public class Robot2024<_opMode> {
     and specimens into oposition.  All the functions that can be call by the robot will be defined here
      */
     private VertClawElevatorControl elevatorControl;
+    private NewVertElevatorControl elevatorControl2;
+    public void raiseLowerElevator2(double cmd){
+        elevatorControl2.raiseLowerElevator_Teliop(cmd);
+    }
+    public void setElevatorToPosition(int desiredPosition){
+        elevatorControl2.setElevatorToPostion(desiredPosition);
+    }
+    public void closeVertClaw2 (){
+        elevatorControl2.closeClaw(.02);
+    }
+    public void openVertClaw2(){
+        elevatorControl2.openClaw(.1666666);
+    }
+    public void vertClawToDeliverPosition2(double cmd){
+        elevatorControl2.clawDeliverPosition(cmd);
+    }
+    public void vertClawToReceivePosition2(double cmd){
+        elevatorControl2.clawReceivePosition(cmd);
+    }
+
     //elevator control functions
     public void raiseLowerElevator(double cmd) {
         elevatorControl.raiseLowerElevator_T(cmd);
     }
     public int getElevatorPositition(){
         return elevatorControl.getCurrentPostion();
+    }
+
+    public int getElevatorPositition2(){
+        return elevatorControl2.getCurrentPostion();
+    }
+    public int getTargetPostion2(){
+        return elevatorControl2.getTargetPosition();
+    }
+    public void updatePIDs(){
+        elevatorControl2.setPIDVals();
     }
     public void raiseElevatorToPosition_Autonomous(double cmd, int DesiredPos) {
         elevatorControl.raiseLowerElevatorToPosition_AUTO(cmd, DesiredPos);
@@ -45,6 +86,9 @@ public class Robot2024<_opMode> {
     }
     public void elevatorUpdate(double dt){
         elevatorControl.updatePosControl(dt);
+    }
+    public void updateElevatorVelocityControl(double desVel, double dt){
+        elevatorControl.updateVelControl(desVel,dt);
     }
     public void closeVertClaw (){
         elevatorControl.closeClaw(.02);

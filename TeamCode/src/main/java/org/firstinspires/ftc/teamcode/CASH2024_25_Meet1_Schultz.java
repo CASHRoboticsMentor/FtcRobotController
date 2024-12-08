@@ -43,34 +43,38 @@ import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
  * This is the TeleOp Mode control class for 2021 robot.
  */
 
-@TeleOp(name = "CASH 2024-2025 Meet1 USETHIS", group = "Iterative Opmode")
+@TeleOp(name = "CASH 2024-2025 Meet1 OLD", group = "Iterative Opmode")
 @Disabled
-public class CASH2024_25_Meet1 extends OpMode {
+public class CASH2024_25_Meet1_Schultz extends OpMode {
     /*
      * Code to run ONCE when the driver hits INIT
      */
     private final ElapsedTime runtime = new ElapsedTime();
     private final ElapsedTime loopTime = new ElapsedTime();
 
+    private final ElapsedTime vertReceiveWaitTimer = new ElapsedTime();
+
+    private final ElapsedTime clawRotateDownTimer = new ElapsedTime();
     boolean clawRotateTimerActive = false;
 
+    private final ElapsedTime clawRetractTimer = new ElapsedTime();
     boolean clawRetractTimerActive = false;
 
     //Horizontal Servo control params
+    private final ElapsedTime horzServoCmdTimer = new ElapsedTime();
     private boolean horzServoCmdTimerIsActive = false;
     private boolean grabberInUpPosition = true;
 
+    private final ElapsedTime grabberServoCmdTimer = new ElapsedTime();
     private boolean grabberServoCmdTimerIsActive = false;
     private boolean grabberInOpenPosition = true;
 
     //Vertical Servo control params
-    private double vertRotateServoTimerResetVal = 0, vertClawServoTimerResetVal = 0,
-            horzServoCmdTimeResetVal = 0, grabberServoCmdTimerResetVal = 0,
-            vertReceiveWaitTimerResetVal = 0, clawRotateDownTimerResetVal = 0,
-            clawRetractTimerResetVal = 0, slowModeTimerResetVal = 0;
+    private final ElapsedTime vertRotateServoTimer = new ElapsedTime();
     private boolean vertRotateServoCmdTimerIsActive = false;
     private boolean vertInRecievePosition = true;
 
+    private final ElapsedTime vertClawServoTimer = new ElapsedTime();
     private boolean vertClawServoCmdTimerIsActive = false;
     private boolean vertClawInOpenPosition = true;
 
@@ -100,7 +104,7 @@ public class CASH2024_25_Meet1 extends OpMode {
     boolean transferClawOpenIsActive = false;
 
     int HOLDPOS = 0;
-    double prvCmd = 0;
+    double previousElevatorCommand = 0;
     boolean putElevInHoldControl = false;
     @Override
 
@@ -160,12 +164,13 @@ public class CASH2024_25_Meet1 extends OpMode {
             inStartup = false;
         }
         boolean slowMode = gamepad1.b;
+
         if (slowMode && !isSlowModeTimerActive){
 
             isSlowModeTimerActive = true;
-            slowModeTimerResetVal = loopTime.milliseconds();
+            slowModeTimer.reset();
         }
-        if (isSlowModeTimerActive && loopTime.milliseconds() - slowModeTimerResetVal > 250 ){
+        if (isSlowModeTimerActive && slowModeTimer.milliseconds() > 250 ){
             slowModeActive = !slowModeActive;
             isSlowModeTimerActive = false;
         }
@@ -191,7 +196,7 @@ public class CASH2024_25_Meet1 extends OpMode {
         boolean vertClawAction = gamepad2.right_bumper;
 
         //Vertical Elevator Control
-        double elevatorCommand = -gamepad2.left_stick_y*.75;
+        double elevatorCommand = -gamepad2.left_stick_y*0.75;
         double horizSlideCommand = gamepad2.right_stick_x*.25;
 
         float autoExtend = gamepad1.right_trigger;
@@ -202,63 +207,79 @@ public class CASH2024_25_Meet1 extends OpMode {
 //        RobotLog.i(String.format("elevator Postioing %.2f",robot.getElevatorPositition()));
 //        RobotLog.i(String.format("horizontal Position %.2f",));
 
-        //  Teliop for the Vertical claw rotate
+
+
+
+
+        //  Teliop for the Horizontal claw rotate
         if (vertClawRotateAction && !vertRotateServoCmdTimerIsActive){
-            vertRotateServoTimerResetVal = loopTime.milliseconds();
+            vertRotateServoTimer.reset();
             vertRotateServoCmdTimerIsActive = true;
         }
         if (vertRotateServoCmdTimerIsActive) {
             if (vertInRecievePosition) {
                 robot.vertClawToDeliverPosition(1);
-                if (loopTime.milliseconds()-vertRotateServoTimerResetVal > 250){
+                if (vertRotateServoTimer.milliseconds() > 250){
                     vertInRecievePosition = false;
                     vertRotateServoCmdTimerIsActive = false;
                 }
             } else {
                 robot.vertClawToReceivePosition(0);
-                if (loopTime.milliseconds()-vertRotateServoTimerResetVal > 250){
+                if (vertRotateServoTimer.milliseconds() > 250){
                     vertInRecievePosition = true;
                     vertRotateServoCmdTimerIsActive = false;
                 }
             }
         }
-
-        //Vertical Claw Control
         if (vertClawAction && !vertClawServoCmdTimerIsActive){
-            vertClawServoTimerResetVal = loopTime.milliseconds();
+            vertClawServoTimer.reset();
             vertClawServoCmdTimerIsActive = true;
         }
         if (vertClawServoCmdTimerIsActive) {
             if (vertClawInOpenPosition) {
                 robot.closeVertClaw();
-                if (loopTime.milliseconds()-vertClawServoTimerResetVal > 250){
+                if (vertClawServoTimer.milliseconds() > 250){
                     vertClawInOpenPosition = false;
                     vertClawServoCmdTimerIsActive = false;
                 }
             } else {
                 robot.openVertClaw();
-                if (loopTime.milliseconds()-vertClawServoTimerResetVal > 250){
+                if (vertClawServoTimer.milliseconds() > 250){
                     vertClawInOpenPosition = true;
                     vertClawServoCmdTimerIsActive = false;
                 }
             }
         }
 
+//        if (transferClawOpen>0) {
+//            robot.openVertClaw(0.02);
+//        }
+//        if (transferClawClose>0) {
+//            robot.closeVertClaw(.1666666666666666666666666666666666666666666666666666666666666666666);
+//        }
+//        if (transferClawUpPostion) {
+//            robot.vertClawToDeliverPosition(1);
+//        }
+//        if (recievePosition) {
+//            robot.vertClawToReceivePosition(0);
+//        }
+
+
         //  Teliop for the Horizontal claw rotate
         if (horzRotateAction && !horzServoCmdTimerIsActive){
-            horzServoCmdTimeResetVal = loopTime.milliseconds();
+            horzServoCmdTimer.reset();
             horzServoCmdTimerIsActive = true;
         }
         if (horzServoCmdTimerIsActive) {
             if (grabberInUpPosition) {
                 robot.GrabberDown();
-                if (loopTime.milliseconds()-horzServoCmdTimeResetVal > 150){
+                if (horzServoCmdTimer.milliseconds() > 250){
                     grabberInUpPosition = false;
                     horzServoCmdTimerIsActive = false;
                 }
             } else {
                 robot.GrabberUp();
-                if (loopTime.milliseconds()-horzServoCmdTimeResetVal > 150){
+                if (horzServoCmdTimer.milliseconds() > 250){
                     grabberInUpPosition = true;
                     horzServoCmdTimerIsActive = false;
                 }
@@ -266,19 +287,19 @@ public class CASH2024_25_Meet1 extends OpMode {
         }
         //  Teliop for the Horizontal claw open close
         if (horzClawAction && !grabberServoCmdTimerIsActive){
-            grabberServoCmdTimerResetVal = loopTime.milliseconds();
+            grabberServoCmdTimer.reset();
             grabberServoCmdTimerIsActive = true;
         }
         if (grabberServoCmdTimerIsActive) {
             if (grabberInOpenPosition) {
                 robot.GrabberClose();
-                if (loopTime.milliseconds()-grabberServoCmdTimerResetVal > 150){
+                if (grabberServoCmdTimer.milliseconds() > 250){
                     grabberInOpenPosition = false;
                     grabberServoCmdTimerIsActive = false;
                 }
             } else {
                 robot.GrabberOpen();
-                if (loopTime.milliseconds()-grabberServoCmdTimerResetVal > 150){
+                if (grabberServoCmdTimer.milliseconds() > 250){
                     grabberInOpenPosition = true;
                     grabberServoCmdTimerIsActive = false;
                 }
@@ -287,6 +308,7 @@ public class CASH2024_25_Meet1 extends OpMode {
 
 
         //Elevator Control
+
         if (AutoDeliverSample) {
             robot.setDesElevatorPosition_Teliop(robot.HIGH_BASKET_POSITION);
             if (robot.getElevatorPositition() >= robot.HIGH_BASKET_POSITION) {
@@ -294,46 +316,58 @@ public class CASH2024_25_Meet1 extends OpMode {
             }
         } else if (AutoReceiveSample) {
             if (!RecieveTimerStarted) {
-                vertReceiveWaitTimerResetVal = loopTime.milliseconds();
+                vertReceiveWaitTimer.reset();
                 RecieveTimerStarted = true;
             }
             robot.vertClawToReceivePosition(0);
             robot.openVertClaw();
-            if (loopTime.milliseconds()-vertReceiveWaitTimerResetVal > 1000) {
+            if (vertReceiveWaitTimer.milliseconds() > 1000) {
                 robot.setDesElevatorPosition_Teliop(robot.SAMPLE_RECEIVE_POSITION);
                 RecieveTimerStarted = false;
             }
         }
-
         if (autoraise){
             robot.setDesElevatorPosition_Teliop(robot.HIGH_RUNG_POSITION);
             autoraiseactive = true;
         }
 
-        ///To only update the postion when intending to (up and co0mmand is greater and down and commnd is going down
-        if (prvCmd < elevatorCommand && elevatorCommand >= 0.05){
-            robot.setDesElevatorPosition_Teliop(robot.getElevatorPositition());
-            robot.raiseLowerElevator(elevatorCommand);
-        }else if (prvCmd > elevatorCommand && elevatorCommand <= -0.05){
-            robot.setDesElevatorPosition_Teliop(robot.getElevatorPositition());
-            robot.raiseLowerElevator(elevatorCommand);
-        }
-        prvCmd = elevatorCommand;
-        ///////
-
-//        if (Math.abs(elevatorCommand) > .025) {
-//            robot.raiseLowerElevator(elevatorCommand);
-//            autoraiseactive = false;
+        double elevFinalCmd = 0;
+        //if joystick is centered or is on its way to center we want to hold the last position when the command changes direction
+        //cmd changing logic
+//
+//        if (elevatorCommand < previousElevatorCommand ){
+//            //we need to set the elevaotr position to the enconder position at the prev command
 //            robot.setDesElevatorPosition_Teliop(robot.getElevatorPositition());
+//            putElevInHoldControl = true;
+//        }
+//
+//        if (!putElevInHoldControl){
+//            robot.raiseLowerElevator(elevatorCommand);
 //        }else{
 //            robot.elevatorUpdate(loopTime.seconds());
 //        }
+//
+//        previousElevatorCommand = elevatorCommand;
 
-        if ( Math.abs(elevatorCommand) < 0.05) {
-            robot.elevatorUpdate(loopTime.seconds());
-        }
 
-        RobotLog.i(String.format("ELEV: raw Command: %.4f Last Des Postion: %d HOLD POS: %d  PRE: %.4f",elevatorCommand,robot.getElevatorPositition(), HOLDPOS, prvCmd));
+//
+        robot.raiseLowerElevator(elevatorCommand);
+
+
+//        if (Math.abs(elevatorCommand) > .025) {
+//
+//            robot.raiseLowerElevator(elevatorCommand);
+////            previousElevatorCommand = elevatorCommand;
+//            autoraiseactive = false;
+//            HOLDPOS = robot.getElevatorPositition();
+////            robot.setDesElevatorPosition_Teliop(HOLDPOS);
+//        }
+//        else{
+////            robot.elevatorUpdate(loopTime.seconds());
+//
+//        }
+//
+        RobotLog.i(String.format("ELEV: raw Command: %.4f Last Des Postion: %d HOLD POS: %d  PRE: %.4f",elevatorCommand,robot.getElevatorPositition(), HOLDPOS, previousElevatorCommand));
 //        RobotLog.i(String.format("driver position %d",robot.getDrivingEncoderPosition()));
 //        RobotLog.i(String.format("elevator position %d",robot.getElevatorPositition()));
 
@@ -357,9 +391,9 @@ public class CASH2024_25_Meet1 extends OpMode {
             AutoRetractSlider = false;
             AutoExtendSlider_GP2 = false;
         }
-        RobotLog.i(String.format("elapsed Time %.3f",loopTime.seconds()));
+
         if (AutoExtendSlider  && !clawRotateTimerActive){
-            clawRotateDownTimerResetVal = loopTime.milliseconds();
+            clawRotateDownTimer.reset();
             clawRotateTimerActive = true;
             if (AutoExtendSlider_GP2) {
                 robot.setDesSliderPosition(robot.EXTEND_FOR_SPECIMEN);
@@ -370,13 +404,13 @@ public class CASH2024_25_Meet1 extends OpMode {
 
             }
         }
-        if (clawRotateTimerActive && loopTime.milliseconds()-clawRotateDownTimerResetVal>500){
+        if (clawRotateTimerActive && clawRotateDownTimer.milliseconds()>500){
             robot.GrabberDown();
             clawRotateTimerActive = false;
         }
 //        RobotLog.i(String.format("AutoRetractSlider %.3f  ",AutoRetractSlider));
         if (AutoRetractSlider  && !clawRetractTimerActive){
-            clawRetractTimerResetVal = loopTime.milliseconds();
+            clawRetractTimer.reset();
             clawRetractTimerActive = true;
 //            clawRotateDownTimer.reset();
 //            clawRetractTimerActive = true;
@@ -386,20 +420,20 @@ public class CASH2024_25_Meet1 extends OpMode {
 
         }
 //        RobotLog.i(String.format("clawRetractTimer %.3f",clawRetractTimer.milliseconds()));
-        if (clawRetractTimerActive && loopTime.milliseconds()-clawRetractTimerResetVal>1250){
+        if (clawRetractTimerActive && clawRetractTimer.milliseconds()>1250){
             robot.setDesSliderPosition(0);
             robot.openVertClaw();
             clawRetractTimerActive = false;
             transferTimerActive = true;
 
         }
-        if (robot.getSliderPositition() < 100 && loopTime.milliseconds()-clawRetractTimerResetVal > 2750 && transferTimerActive){
+        if (robot.getSliderPositition() < 100 && clawRetractTimer.milliseconds() > 2750 && transferTimerActive){
             robot.closeVertClaw();
 //            robot.GrabberOpen();
             transferTimerActive = false;
             transferClawOpenIsActive = true;
         }
-        if (loopTime.milliseconds() - clawRetractTimerResetVal > 3000 && transferClawOpenIsActive){
+        if (clawRetractTimer.milliseconds()> 3000 && transferClawOpenIsActive){
             robot.GrabberOpen();
             transferClawOpenIsActive = false;
         }
@@ -418,11 +452,10 @@ public class CASH2024_25_Meet1 extends OpMode {
             robot.sliderUpdate(loopTime.seconds());
         }
 //        RobotLog.i(String.format("LF:%d RF:%d LR:%d RR:%d",robot.getLFEncoder(),robot.getRFEncoder(),robot.getLREncoder(),robot.getRREncoder()));
-        RobotLog.i(String.format("elapsed Time %.3f",loopTime.seconds()));
 
+        RobotLog.i(String.format("elapsed Time %.3f",loopTime.seconds()));
         robot.moveRobotteli(drive_y, drive_x, turn_x);
         telemetry.addData("Status", "Running");
-        telemetry.addData("Status", loopTime.seconds());
 //            telemetry.addData("#ofTicks", robot.getTicks());
         telemetry.update();
         loopTime.reset();

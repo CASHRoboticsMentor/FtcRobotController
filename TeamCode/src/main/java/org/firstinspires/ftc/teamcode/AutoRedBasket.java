@@ -85,7 +85,7 @@ public class AutoRedBasket extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //create the robot object that basically activates everything in Robot2024.java file.
-        robot = new Robot2024(this);
+        robot = new Robot2024(this,true);
 
         robot.initializeRobot();
         robot.resetIMU();

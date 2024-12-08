@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -54,7 +55,7 @@ import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
  */
 
 @Autonomous(name="AutoRedBasket2", group="Autonomous LinearOpMode")
-//@Disabled
+@Disabled
 public class AutoBasket2 extends LinearOpMode {
     private Robot2024 robot;
     //This sensor is used to detect the team prop.  There are two of them, one on left and one on
