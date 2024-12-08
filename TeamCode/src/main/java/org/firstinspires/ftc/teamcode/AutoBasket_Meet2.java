@@ -53,9 +53,9 @@ import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="AutoRedDepo_Meet2Old", group="Autonomous LinearOpMode")
+@Autonomous(name="AutoBasket_Meet2", group="Autonomous LinearOpMode")
 //@Disabled
-public class AutoRedDepo extends LinearOpMode {
+public class AutoBasket_Meet2 extends LinearOpMode {
     private Robot2024 robot;
     //This sensor is used to detect the team prop.  There are two of them, one on left and one on
     //right.  The each sensor is used for a different start location of the robot depending on
@@ -73,10 +73,9 @@ public class AutoRedDepo extends LinearOpMode {
     private boolean initimpliments = true;
     public CASH_Drive_Library CASHDriveLibrary;
 
-
-    final private double distanceToCage = 25;
-    final private double distanceBackToWall = 22;
-    final private double distanceToParking = 30;
+    final private double distanceToCage = 22;
+    final private double distanceBackToWall = 20;
+    final private double distanceToParking = 50;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -88,8 +87,9 @@ public class AutoRedDepo extends LinearOpMode {
         robot = new Robot2024(this,true);
 
         robot.initializeRobot();
-        robot.resetImplements();
         robot.resetIMU();
+        robot.resetImplements();
+//        robot.initializeImplements();
         CASHDriveLibrary = robot.CASHDriveLibrary;
         telemetry.addData("Status", "Initialized");
 
@@ -100,35 +100,38 @@ public class AutoRedDepo extends LinearOpMode {
             //First step is to reset the bucket so that it is held into position.
 //            robot.reset_pixle_bucket();
             robot.closeVertClaw();
+            robot.GrabberToPostion(.4);
             //Step 1:  Setup robot to scan the first position for the team prop
             robot.moveRobotAuto(robot.REVERSE, 0.3, distanceToCage);
-            //sleep(1000);
+            sleep(1000);
             robot.raiseElevatorToPosition_Autonomous(1,robot.AUTO_VERT_DELIVER_UPPER_POSITION);
             robot.vertClawToDeliverPosition(1);
-            sleep(1000);
+            sleep(2000);
 
             robot.raiseElevatorToPosition_Autonomous(-.25,robot.AUTO_VERT_DELIVER_LOWER_POSITION);
             sleep(1000);
             robot.openVertClaw();
             sleep(500);
-            robot.vertClawToReceivePosition(0);
+            robot.vertClawToReceivePosition(0.03);
             sleep(1250);
-//            robot.raiseElevatorToPosition_Autonomous(-1,20);
-            robot.moveRobotAuto(robot.LEFT, 0.6, 27);
-            robot.moveRobotAuto(robot.REVERSE, 0.6, 30);
-            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
-            robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
-            robot.moveRobotAuto(robot.REVERSE, 0.6, 46);
-            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
-            robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
-            robot.moveRobotAuto(robot.REVERSE, 0.6, 36);
-            robot.rotateRobotAuto2(robot.TURN_LEFT, 90, 0.3);
-            robot.moveRobotAuto(robot.REVERSE, 0.7, 25);
+//            robot.raiseElevatorToPosition_Autonomous(-1,0);
+            robot.moveRobotAuto(robot.RIGHT,.5,27);
+            robot.moveRobotAuto(robot.REVERSE, 0.3, distanceBackToWall);
+            robot.moveRobotAuto(robot.RIGHT,.5,13);
+            robot.extentSliderToPosition_Autonomous(.5,robot.EXTEND_FOR_SPECIMEN);
+            robot.moveRobotAuto(robot.FORWARD,.3,2 );
+            sleep(500);
+            robot.GrabberOpen();
+            sleep(1500);
+            robot.GrabberDown();
+            sleep(1500);
+            robot.GrabberClose();
+            robot.GrabberUp();
+            robot.extentSliderToPosition_Autonomous(.5,0);
 
-            robot.raiseElevatorToPosition_Autonomous(1,robot.PARKING_ELEVATOR_POSITION);
-            robot.vertClawToDeliverPosition(1);
-            sleep(2000);
-            robot.moveRobotAuto(robot.REVERSE, 0.2, 8.5);
+           // robot.moveRobotAuto(robot.RIGHT,.5,distanceToParking);
+
+
             telemetry.addData("Done ", robot.getTicks());
             telemetry.update();
             sleep(30000);

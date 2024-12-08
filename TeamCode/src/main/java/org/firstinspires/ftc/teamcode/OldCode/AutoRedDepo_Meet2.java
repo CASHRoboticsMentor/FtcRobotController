@@ -27,12 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.OldCode;
 
 import android.annotation.SuppressLint;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -41,6 +42,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Robot2024;
 import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
 
 /**
@@ -57,10 +59,11 @@ import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="AutoRedBasket_Meet2", group="Autonomous LinearOpMode")
-//@Disabled
-public class AutoRedBasket_Meet2 extends LinearOpMode {
+@Autonomous(name="AutoRedDepo_Meet2", group="Autonomous LinearOpMode")
+@Disabled
+public class AutoRedDepo_Meet2 extends LinearOpMode {
     private Robot2024 robot;
+
     /////////////////
     private PIDController controller;
     public static double p=0.005, i = .25, d = 0;
@@ -79,6 +82,7 @@ public class AutoRedBasket_Meet2 extends LinearOpMode {
     private Servo verticalClawRotateServo;
     public static double vertClawRotUpCmdVal = 1.0;
     public static double vertClawRotDwCmdVal = 0.03;
+
     //Variable that holds the runtime of the operation
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -88,9 +92,10 @@ public class AutoRedBasket_Meet2 extends LinearOpMode {
     private boolean initimpliments = true;
     public CASH_Drive_Library CASHDriveLibrary;
 
-    final private double distanceToCage = 22;
-    final private double distanceBackToWall = 20;
-    final private double distanceToParking = 50;
+
+    final private double distanceToCage = 25;
+    final private double distanceBackToWall = 22;
+    final private double distanceToParking = 30;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -110,8 +115,8 @@ public class AutoRedBasket_Meet2 extends LinearOpMode {
         verticalClawRotateServo = hardwareMap.get(Servo.class,"vert_claw_rotate");
 
         robot.initializeRobot();
+//        robot.resetImplements();
         robot.resetIMU();
-//        robot.initializeImplements();
         CASHDriveLibrary = robot.CASHDriveLibrary;
         telemetry.addData("Status", "Initialized");
 
@@ -121,14 +126,20 @@ public class AutoRedBasket_Meet2 extends LinearOpMode {
         while (opModeIsActive()) {
             //First step is to reset the bucket so that it is held into position.
 //            robot.reset_pixle_bucket();
-            closeVertClaw2 ();
+            closeVertClaw2();
             //Step 1:  Setup robot to scan the first position for the team prop
-            robot.moveRobotAuto(robot.FORWARD, 0.3, distanceToCage);
-            sleep(1000);
+            robot.moveRobotAuto(robot.REVERSE, 0.3, distanceToCage);
+            //sleep(1000);
 //            robot.raiseElevatorToPosition_Autonomous(1,robot.AUTO_VERT_DELIVER_UPPER_POSITION);
-            putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),robot.AUTO_VERT_DELIVER_UPPER_POSITION);
+            while(opModeIsActive() && elevatorMotor_BF.getCurrentPosition() <= robot.AUTO_VERT_DELIVER_UPPER_POSITION){
+                putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),robot.AUTO_VERT_DELIVER_UPPER_POSITION);
+                telemetry.addData("pos", elevatorMotor_BF.getCurrentPosition());
+                telemetry.addData("target", robot.AUTO_VERT_DELIVER_UPPER_POSITION);
+                telemetry.update();
+            }
+            sleep(300000);
             vertClawToDeliverPosition2();
-            sleep(2000);
+            sleep(1000);
 
 //            robot.raiseElevatorToPosition_Autonomous(-.25,robot.AUTO_VERT_DELIVER_LOWER_POSITION);
             putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),robot.AUTO_VERT_DELIVER_LOWER_POSITION);
@@ -137,26 +148,26 @@ public class AutoRedBasket_Meet2 extends LinearOpMode {
             sleep(500);
             vertClawToReceivePosition2();
             sleep(1250);
-//            robot.raiseElevatorToPosition_Autonomous(-1,0);
-            putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),0);
-            robot.moveRobotAuto(robot.LEFT,.5,27);
-            robot.moveRobotAuto(robot.FORWARD, 0.3, distanceBackToWall);
-            robot.moveRobotAuto(robot.LEFT,.5,13);
-            robot.extentSliderToPosition_Autonomous(.5,robot.EXTEND_FOR_SPECIMEN);
-            robot.moveRobotAuto(robot.REVERSE,.3,2 );
-            sleep(500);
-            robot.GrabberOpen();
-            sleep(1500);
-            robot.GrabberDown();
-            sleep(1500);
-            robot.GrabberClose();
-            robot.GrabberUp();
-            robot.extentSliderToPosition_Autonomous(.5,0);
+//            robot.raiseElevatorToPosition_Autonomous(-1,20);
+            putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),20);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 27);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 30);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
+            robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 46);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
+            robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 36);
+            robot.rotateRobotAuto2(robot.TURN_LEFT, 90, 0.3);
+            robot.moveRobotAuto(robot.REVERSE, 0.7, 25);
 
-           // robot.moveRobotAuto(robot.RIGHT,.5,distanceToParking);
-
-
-            telemetry.addData("Done ", robot.getTicks());
+//            robot.raiseElevatorToPosition_Autonomous(1,robot.PARKING_ELEVATOR_POSITION);
+            putElevatorAtPosition(elevatorMotor_BF.getCurrentPosition(),robot.PARKING_ELEVATOR_POSITION);
+            vertClawToDeliverPosition2();
+            sleep(2000);
+            robot.moveRobotAuto(robot.REVERSE, 0.2, 8.5);
+            telemetry.addData("pos", elevatorMotor_BF.getCurrentPosition());
+            telemetry.addData("target", robot.AUTO_VERT_DELIVER_UPPER_POSITION);
             telemetry.update();
             sleep(30000);
          }

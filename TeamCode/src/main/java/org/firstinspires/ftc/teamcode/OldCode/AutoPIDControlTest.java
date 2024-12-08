@@ -27,16 +27,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.OldCode;
 
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.teamcode.Robot2024;
 import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
 
 /**
@@ -44,7 +44,7 @@ import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
  */
 
 @Autonomous(name = "AutoPIDControlTest", group = "Iterative Opmode")
-//@Disabled
+@Disabled
 public class AutoPIDControlTest extends OpMode {
     /*
      * Code to run ONCE when the driver hits INIT

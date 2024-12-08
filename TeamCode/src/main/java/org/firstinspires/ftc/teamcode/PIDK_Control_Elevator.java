@@ -37,8 +37,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 /*
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -57,7 +55,7 @@ import com.qualcomm.robotcore.util.Range;
 @Disabled
 @TeleOp(name="PIDK Control elevator", group="Iterative OpMode")
 
-public class TestElevatorController extends OpMode
+public class PIDK_Control_Elevator extends OpMode
 {
     private PIDController controller;
     public static double p=0.005, i = .25, d = 0;

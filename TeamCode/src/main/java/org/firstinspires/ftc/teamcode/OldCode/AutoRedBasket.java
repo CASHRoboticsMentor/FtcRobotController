@@ -27,18 +27,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.OldCode;
 
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Robot2024;
 import org.firstinspires.ftc.teamcode.utilities.CASH_Drive_Library;
-import org.firstinspires.ftc.teamcode.utilities.IMUUtility2;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -55,7 +56,7 @@ import org.firstinspires.ftc.teamcode.utilities.IMUUtility2;
  */
 
 @Autonomous(name="AutoRedBasket", group="Autonomous LinearOpMode")
-//@Disabled
+@Disabled
 public class AutoRedBasket extends LinearOpMode {
     private Robot2024 robot;
     //This sensor is used to detect the team prop.  There are two of them, one on left and one on
@@ -89,6 +90,7 @@ public class AutoRedBasket extends LinearOpMode {
 
         robot.initializeRobot();
         robot.resetIMU();
+        robot.resetImplements();
 //        robot.initializeImplements();
         CASHDriveLibrary = robot.CASHDriveLibrary;
         telemetry.addData("Status", "Initialized");

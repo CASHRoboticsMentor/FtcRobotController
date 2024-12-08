@@ -16,7 +16,7 @@ public class HorizontalSliderControl {
         m_configName = configName;
         _opMode = opMode;
         slider_motor = _opMode.hardwareMap.get(DcMotor.class, configName);
-        this.resetElevatorMotorEncoder();
+//        this.resetElevatorMotorEncoder();
         HorzClawControl = new CashServo(_opMode,"horz_claw");
         HorizontalClawRotate = new CashServo(_opMode,"horz_claw_rotate");
         pos_pid = new pid_controller(); // PID control for position controls
