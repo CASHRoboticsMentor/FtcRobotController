@@ -73,8 +73,8 @@ public class AutoBasket_Meet2 extends LinearOpMode {
     private boolean initimpliments = true;
     public CASH_Drive_Library CASHDriveLibrary;
 
-    final private double distanceToCage = 22;
-    final private double distanceBackToWall = 20;
+    final private double distanceToCage = 24;
+    final private double distanceBackToWall = 22;
     final private double distanceToParking = 50;
 
     /*

@@ -34,7 +34,9 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -62,6 +64,7 @@ public class AutoObservation_Meet2 extends LinearOpMode {
     //right.  The each sensor is used for a different start location of the robot depending on
     //color and alliance.
     private DistanceSensor sensorRange;
+
     //Variable to hold the distance value measured from the Distance sensor
     private double distance;
 
@@ -75,9 +78,11 @@ public class AutoObservation_Meet2 extends LinearOpMode {
     public CASH_Drive_Library CASHDriveLibrary;
 
 
-    final private double distanceToCage = 25;
-    final private double distanceBackToWall = 22;
+    final private double distanceToCage = 27;
+    final private double distanceBackToWall = 24;
     final private double distanceToParking = 30;
+
+
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -92,6 +97,10 @@ public class AutoObservation_Meet2 extends LinearOpMode {
         robot.resetImplements();
         robot.resetIMU();
         CASHDriveLibrary = robot.CASHDriveLibrary;
+
+
+
+
         telemetry.addData("Status", "Initialized");
 
         // Wait for the game to start (driver presses PLAY)
@@ -101,31 +110,49 @@ public class AutoObservation_Meet2 extends LinearOpMode {
             //First step is to reset the bucket so that it is held into position.
 //            robot.reset_pixle_bucket();
             robot.closeVertClaw();
-            robot.GrabberToPostion(.4);
+            robot.GrabberToPostion(.6);
             //Step 1:  Setup robot to scan the first position for the team prop
+           // sleep(7000);
+           // robot.moveRobotAuto(robot.RIGHT,.6,9);
             robot.moveRobotAuto(robot.REVERSE, 0.3, distanceToCage);
             //sleep(1000);
-            robot.raiseElevatorToPosition_Autonomous(1,robot.AUTO_VERT_DELIVER_UPPER_POSITION);
             robot.vertClawToDeliverPosition(1);
-            sleep(1000);
-
-            robot.raiseElevatorToPosition_Autonomous(-.25,robot.AUTO_VERT_DELIVER_LOWER_POSITION);
-            sleep(1000);
+            robot.raiseElevatorToPosition_Autonomous(1,robot.AUTO_VERT_DELIVER_UPPER_POSITION);
+            sleep(750);
+            robot.raiseElevatorToPosition_Autonomous(-1,robot.AUTO_VERT_DELIVER_LOWER_POSITION);
+            sleep(500);
             robot.openVertClaw();
             sleep(500);
             robot.vertClawToReceivePosition(0.03);
             sleep(1250);
 //            robot.raiseElevatorToPosition_Autonomous(-1,20);
+
+            robot.moveRobotAuto(robot.FORWARD, .6, 3);
             robot.moveRobotAuto(robot.LEFT, 0.6, 27);
             robot.moveRobotAuto(robot.REVERSE, 0.6, 30);
-            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 13);
             robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
             robot.moveRobotAuto(robot.REVERSE, 0.6, 46);
-            robot.moveRobotAuto(robot.LEFT, 0.6, 14);
+            robot.moveRobotAuto(robot.LEFT, 0.6, 12);
+
             robot.moveRobotAuto(robot.FORWARD, 0.6, 46);
-            robot.moveRobotAuto(robot.REVERSE, 0.6, 36);
-            robot.rotateRobotAuto2(robot.TURN_LEFT, 90, 0.3);
-            robot.moveRobotAuto(robot.REVERSE, 0.7, 25);
+           // sleep(60000000);
+            robot.moveRobotAuto(robot.REVERSE, 0.6, 41);
+           robot.moveRobotAuto(robot.LEFT,.6,9);
+            robot.moveRobotAuto(robot.FORWARD, 0.6, 44);
+
+            robot.moveRobotAuto(robot.REVERSE, 1, 44);
+            robot.rotateRobotAuto2(robot.TURN_RIGHT,90,1);
+            robot.moveRobotAuto(robot.FORWARD, .5, 36);
+            //rotate servo
+
+//            sleep(500);
+            robot.extentSliderToPosition_Autonomous(1, robot.EXTEND_POSITION);
+            robot.GrabberDown();
+
+
+
+            sleep(500000000);
 
             robot.raiseElevatorToPosition_Autonomous(1,robot.PARKING_ELEVATOR_POSITION);
             robot.vertClawToDeliverPosition(1);

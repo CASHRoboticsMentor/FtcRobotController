@@ -111,7 +111,7 @@ public class VertClawElevatorControl {
                         ||
                         (elevator_motor.getCurrentPosition() > desiredPos && cmd < 0))) {
 
-//            RobotLog.d(String.format("COMMAND: %.03f DESIRED POSITION :  %d ",cmd,desiredPos));
+            RobotLog.d(String.format("COMMAND: %.03f DESIRED POSITION :  %d ",cmd,desiredPos));
         }
         this.raiseLowerElevator_T(0);
     }

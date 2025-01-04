@@ -134,9 +134,11 @@ public class Robot2024<_opMode> {
         horizontalSlideControl.clawReceivePosition(cmd);
     }
 
-    public int AUTO_VERT_DELIVER_UPPER_POSITION = 350;
-    public int AUTO_VERT_DELIVER_LOWER_POSITION = 150;
+    public int AUTO_VERT_DELIVER_UPPER_POSITION = 390; //372
+    public int AUTO_VERT_DELIVER_LOWER_POSITION = 125;
     public int PARKING_ELEVATOR_POSITION = 120;
+
+    public int MAX_ELEVATOR_POSITION = 810;
 
 
 
@@ -231,7 +233,14 @@ public class Robot2024<_opMode> {
 
     public void resetImplements(){
         this.elevatorControl.resetElevatorMotorEncoder();
-        this.horizontalSlideControl.resetElevatorMotorEncoder();
+        this.horizontalSlideControl.resetHorizontalMotorEncoder();
+    }
+
+    public void resetElevatorEncoder(){
+        elevatorControl.resetElevatorMotorEncoder();
+    }
+    public void resetHorizontalEncoder(){
+        horizontalSlideControl.resetHorizontalMotorEncoder();
     }
 
 

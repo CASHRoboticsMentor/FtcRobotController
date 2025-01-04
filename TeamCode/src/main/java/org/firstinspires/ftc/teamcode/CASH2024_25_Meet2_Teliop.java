@@ -37,8 +37,10 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -58,7 +60,7 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
     public static double p=0.005, i = .25, d = 0;
     public static double f = .075;
 
-    public static double pFactor = .1;
+    public static double pFactor = .6;
 
     public static int target = 0;
 
@@ -66,8 +68,9 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
     ////////////////////
 
     private Servo verticalClawServo;
-    public static double vertClawCloseCmdVal = 0.02;
-    public static double vertClawOpenCmdVal = 0.16666666;
+    public static double vertClawCloseCmdVal = 0.04;
+    public static double vertClawOpenCmdVal = 0.36666666;
+    public static int max_elevator_position = 810;
     private Servo verticalClawRotateServo;
     public static double vertClawRotUpCmdVal = 1.0;
     public static double vertClawRotDwCmdVal = 0.03;
@@ -129,17 +132,23 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
     double previousElevatorCommand = 0;
     boolean putElevInHoldControl = false;
 
+    boolean grabberClose = false;
+
+    TouchSensor elevStopSensor;  // Touch sensor Object
+
 
 
     @Override
 
     public void init() {
         robot = new Robot2024(this);
-        controller = new PIDController(p,i,d);
-        elevatorMotor_BF = hardwareMap.get(DcMotorEx.class,"vert_elev_motor");
+        controller = new PIDController(p, i, d);
+        elevatorMotor_BF = hardwareMap.get(DcMotorEx.class, "vert_elev_motor");
 
         verticalClawServo = hardwareMap.get(Servo.class,"vert_claw");
         verticalClawRotateServo = hardwareMap.get(Servo.class,"vert_claw_rotate");
+
+        elevStopSensor = hardwareMap.get(TouchSensor.class, "elev_stop");
 //        VertClawControl = hardwareMap.get(Servo.class,"vert_claw");
 //        VerticalClawRotate = hardwareMap.get(Servo.class,"vert_claw_rotate");
 
@@ -190,11 +199,13 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
         // INPUTS
 ///*
         if (inStartup){
-            robot.GrabberUp();
+//            robot.GrabberUp();
 //            robot.closeVertClaw2();
             closeVertClaw2();
-            robot.GrabberOpen();
+            vertClawInOpenPosition = false;
+//            robot.GrabberOpen();
             inStartup = false;
+            robot.setDesSliderPosition(robot.getSliderPositition());
         }
         boolean slowMode = gamepad1.b;
 
@@ -220,12 +231,15 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
 
         //Sample/Specimen Grabber
 //        boolean horzRotateAction = gamepad1.left_bumper;
-        boolean horzClawAction = gamepad1.right_bumper;
+//        boolean horzClawAction = gamepad1.right_bumper;
+        boolean horzClawClose = gamepad1.right_bumper;
+        boolean horzClawOpen = gamepad1.left_bumper;
         boolean horzRotateAction = false;
 //        boolean horzClawAction = false;
 
         //Vertical transfer claw
         boolean vertClawRotateAction = gamepad2.left_bumper;
+
         boolean vertClawAction = gamepad2.right_bumper;
         telemetry.addData("Bumper command",vertClawAction);
 
@@ -328,13 +342,19 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
                 }
             }
         }
-        //  Teliop for the Horizontal claw open close
-        if (horzClawAction && !grabberServoCmdTimerIsActive){
+
+        //Teliop for hor claw 2
+        if ((horzClawClose || horzClawOpen) && !grabberServoCmdTimerIsActive){
             grabberServoCmdTimer.reset();
+            if (horzClawClose){
+                grabberClose = true;
+            }else {
+                grabberClose = false;
+            }
             grabberServoCmdTimerIsActive = true;
         }
         if (grabberServoCmdTimerIsActive) {
-            if (grabberInOpenPosition) {
+            if (grabberClose) {
                 robot.GrabberClose();
                 if (grabberServoCmdTimer.milliseconds() > 250){
                     grabberInOpenPosition = false;
@@ -348,6 +368,27 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
                 }
             }
         }
+
+//        //  Teliop for the Horizontal claw open close
+//        if (horzClawAction && !grabberServoCmdTimerIsActive){
+//            grabberServoCmdTimer.reset();
+//            grabberServoCmdTimerIsActive = true;
+//        }
+//        if (grabberServoCmdTimerIsActive) {
+//            if (grabberInOpenPosition) {
+//                robot.GrabberClose();
+//                if (grabberServoCmdTimer.milliseconds() > 250){
+//                    grabberInOpenPosition = false;
+//                    grabberServoCmdTimerIsActive = false;
+//                }
+//            } else {
+//                robot.GrabberOpen();
+//                if (grabberServoCmdTimer.milliseconds() > 250){
+//                    grabberInOpenPosition = true;
+//                    grabberServoCmdTimerIsActive = false;
+//                }
+//            }
+//        }
 
 
         //Elevator Control
@@ -377,6 +418,10 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
 ////////////////////////////////////////////////////////////////
         int elevPos = elevatorMotor_BF.getCurrentPosition();
 
+//        if( elevatorCommand > 0 ){
+//            CommandingUp = true;
+//        }
+
 
         double power;
         if (Math.abs(elevatorCommand) > 0.25){
@@ -387,6 +432,11 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
                 power = elevatorCommand;
             }
 
+            if (elevatorMotor_BF.getCurrentPosition() > max_elevator_position && elevatorCommand > 0.25 )
+            {
+                power = 0;
+            }
+
             target = elevPos;
         }else{
             double pid = controller.calculate(elevPos,target);
@@ -394,6 +444,14 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
 
             power = pid + ff;
 
+        }
+
+        if (elevStopSensor.isPressed()) {
+            telemetry.addData("Touch Sensor", "Is Pressed");
+//            elevatorMotor_BF.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+//            elevatorMotor_BF.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        } else {
+            telemetry.addData("Touch Sensor", "Is Not Pressed");
         }
 //        double pid = controller.calculate(elevPos,target);
 //        double ff = f;
@@ -417,7 +475,7 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
 //
 //        RobotLog.i(String.format("ELEV: raw Command: %.4f Last Des Postion: %d HOLD POS: %d  PRE: %.4f",elevatorCommand,robot.getElevatorPositition(), HOLDPOS, previousElevatorCommand));
 //        RobotLog.i(String.format("driver position %d",robot.getDrivingEncoderPosition()));
-//        RobotLog.i(String.format("elevator position %d",robot.getElevatorPositition()));
+        RobotLog.i(String.format("elevator position %d",elevatorMotor_BF.getCurrentPosition()));
 
         // Control of the Slider
         if (autoExtend >0.1){
@@ -425,11 +483,11 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
             AutoRetractSlider = false;
             AutoExtendSlider_GP2 = false;
 
-        }else if (autoExtend_GP2 > 0.1){
+        }else if (autoExtend_GP2 > 0.5){
             AutoExtendSlider = true;
             AutoRetractSlider = false;
             AutoExtendSlider_GP2 = true;
-        }else if (autoRetract > 0.1){
+        }else if (autoRetract > 0.5){
             AutoExtendSlider = false;
             AutoRetractSlider = true;
             AutoExtendSlider_GP2 = false;
@@ -472,6 +530,7 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
             robot.setDesSliderPosition(0);
 //            robot.openVertClaw2();
             openVertClaw2();
+            vertClawInOpenPosition = true;
             clawRetractTimerActive = false;
             transferTimerActive = true;
 
@@ -479,6 +538,7 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
         if (robot.getSliderPositition() < 100 && clawRetractTimer.milliseconds() > 2750 && transferTimerActive){
 //            robot.closeVertClaw2();
             closeVertClaw2();
+            vertClawInOpenPosition = false;
 //            robot.GrabberOpen();
             transferTimerActive = false;
             transferClawOpenIsActive = true;
@@ -493,7 +553,8 @@ public class CASH2024_25_Meet2_Teliop extends OpMode {
 ////            grabberInUpPosition = true;
 ////            robot.GrabberToPostion(.6666);
 
-        if (Math.abs(horizSlideCommand) > .1 || horzClawAction || horzRotateAction) {
+//        if (Math.abs(horizSlideCommand) > .1 || horzClawAction || horzRotateAction) {
+            if (Math.abs(horizSlideCommand) > .1 ) {
             AutoExtendSlider = false;
             AutoRetractSlider = false;
             robot.extendSlider(horizSlideCommand);

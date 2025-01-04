@@ -48,7 +48,7 @@ public class HorizontalSliderControl {
 
 
 
-    public void resetElevatorMotorEncoder(){
+    public void resetHorizontalMotorEncoder(){
         slider_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slider_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slider_motor.setDirection(DcMotorSimple.Direction.FORWARD);
